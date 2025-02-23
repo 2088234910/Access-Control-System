@@ -1,13 +1,13 @@
-#include "Menu.h"
-#include "OLED.h"
 #include <string.h>  
 #include <stdlib.h>
+#include "Menu.h"
+#include "OLED.h"
+#include "Key.h"
 
-KSTATE Key_State;
 MENU* nowMenu = NULL;
 
-Coordinate CurrentCursor={0,0,72,16};   //当前光标
-Coordinate TargetCursor={0,0,72,16};    //目标光标
+Coordinate CurrentCursor={0,0,0,0};   //当前光标
+Coordinate TargetCursor={0,0,0,0};    //目标光标
 
 CoordinateStyle Style = {   //光标样式
     1, //移动方式，0线性移动，1pid回弹移动,2非线性移动
@@ -90,13 +90,13 @@ MENU* Circle_Menu(void)
 void MENU_child(void)
 {
     nowMenu = nowMenu->child;
-    ChangeTargetCursor(0,0,72,16);
+    ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
 }
 
 void MENU_parent(void)
 {
     nowMenu = nowMenu->parent;
-    ChangeTargetCursor(0,0,72,16);
+    ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
 }
 void No_Fun(void)
 {
@@ -105,11 +105,11 @@ void No_Fun(void)
 
 void Menu_Init(void)
 {
-    nowMenu = Creat_Menu("- Menu",72,16,0,OLED_8X16,*No_Fun);
-    nowMenu = Creat_BrotherMenu("- 你好1",72,16,0,OLED_8X16,*No_Fun);
-    nowMenu = Creat_BrotherMenu("- task2",72,16,0,OLED_8X16,*No_Fun);
-    nowMenu = Creat_BrotherMenu("- task3",72,16,0,OLED_8X16,*No_Fun);
-    nowMenu = Creat_BrotherMenu("- task4",72,16,0,OLED_8X16,*MENU_child);
+    nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 铃声",72,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 设置",72,16,0,OLED_8X16,*MENU_child);
         nowMenu = Creat_ChildMenu("- A",72,16,0,OLED_8X16,*No_Fun);
         nowMenu = Creat_BrotherMenu("- B",72,16,0,OLED_8X16,*No_Fun);
         nowMenu = Creat_BrotherMenu("- C",72,16,0,OLED_8X16,*No_Fun);
@@ -118,9 +118,15 @@ void Menu_Init(void)
     nowMenu = Circle_Menu();
 }
 
+static void CurrentCursorInit(){
+    CurrentCursor.Width = nowMenu->Width;
+    CurrentCursor.Height = nowMenu->Height;
+}
+
 void Menu_Choose(void){
     OLED_Clear();
     //DrawFrame(2,2,82,62,2);      //光标尺寸、边框尺寸、文本位置都有待斟酌
+    CurrentCursorInit();
 	ShowMenuList();
 	while(1){
         if(Key_State != Key_NULL){
@@ -206,7 +212,9 @@ void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style){
 void ShowMenuList(void){
 	MENU * NowP = nowMenu;
     int16_t NowY = TargetCursor.Y;
+    OLED_Clear();
     while(NowY < 64){
+        //OLED_ClearArea(0,NowY,NowP->Width,NowP->Height);
         //OLED_ShowStringArea(0,NowY,NowP->Width,NowP->Height,8,NowY,NowP->Name,NowP->FontSize);//无汉字显示
         OLED_ShowMixStringArea(0,NowY,NowP->Width,NowP->Height,8,NowY,NowP->Name,OLED_16X16,NowP->FontSize);//混合显示
         NowP = NowP->next;
@@ -216,6 +224,7 @@ void ShowMenuList(void){
     NowY = TargetCursor.Y;
     while(NowY > 0){
         NowY -= 16; 
+        //OLED_ClearArea(0,NowY,NowP->Width,NowP->Height);
         //OLED_ShowStringArea(0,NowY,NowP->Width,NowP->Height,8,NowY,NowP->Name,NowP->FontSize);//无汉字显示
         OLED_ShowMixStringArea(0,NowY,NowP->Width,NowP->Height,8,NowY,NowP->Name,OLED_16X16,NowP->FontSize);//混合显示
         NowP = NowP->last;
@@ -225,7 +234,6 @@ void ShowMenuList(void){
 }
 
 /***************************  移动部分  ***************************/
-
 //改变目标光标位置与大小
 void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height){
 	if (Y<0)  Y = 0;    // 

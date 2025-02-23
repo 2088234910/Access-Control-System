@@ -43,7 +43,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern KSTATE Key_State;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -153,32 +153,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(GPIO_Pin);
-    HAL_TIM_Base_Start_IT(&htim2);
-}
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-    
-  /* USER CODE BEGIN Callback 1 */
-  if(htim==(&htim2))
-  {
-      HAL_TIM_Base_Stop_IT(&htim2);
-      if(HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_7)==0)
-        Key_State = Key_UP;
-      else if(HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_8)==0)
-        Key_State = Key_DOWN;
-      else if(HAL_GPIO_ReadPin(GPIOE,GPIO_PIN_9)==0)
-        Key_State = Key_MID;
-  }
-  /* USER CODE END Callback 1 */
-}
 /* USER CODE END 4 */
 
 /**

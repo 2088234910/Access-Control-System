@@ -643,7 +643,7 @@ void OLED_ShowMixString(uint8_t X, uint8_t Y, char *String, uint8_t ChineseFontS
   */
 
 void OLED_ShowMixStringArea(uint8_t RangeX, uint8_t RangeY, uint8_t RangeWidth, uint8_t RangeHeight, int16_t X, int16_t Y, char *String, uint8_t ChineseFontSize, uint8_t ASCIIFontSize) {
-    OLED_ClearArea(RangeX,RangeY,RangeWidth,RangeHeight);
+    //OLED_ClearArea(RangeX,RangeY,RangeWidth,RangeHeight);
     uint8_t *ptr = (uint8_t *)String;  // 使用uint8_t指针方便处理每个字节
     while (*ptr != '\0') {
         if (*ptr < 128) {

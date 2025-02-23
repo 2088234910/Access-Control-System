@@ -2,14 +2,6 @@
 #define __MENU_H
 #include <stdint.h>
 
-//按键
-typedef enum{
-    Key_NULL = 0,
-	Key_UP,				
-	Key_DOWN,			
-	Key_MID						
-}KSTATE;
-
 //光标结构体，存储着光标左上角坐标以及光标的长度与宽度
 typedef struct Coordinate{
     int16_t X;
