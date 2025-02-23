@@ -1,5 +1,3 @@
-# key - By: ljc - 2025/2/6
-
 import time
 from machine import Pin, FPIOA
 
