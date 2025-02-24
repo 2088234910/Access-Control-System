@@ -1,11 +1,11 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           :  ²Ëµ¥Ä£°å
+  * @file           :  Access-Control-System
   *
   * @author         :  ljc
   *
-  * @date           :  2024.8.25
+  * @date           :  2025.2.24
   *
   * @platform       :  STM32F407VET6
   ******************************************************************************
@@ -86,9 +86,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM2_Init();
   MX_SDIO_SD_Init();
   MX_FATFS_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   OLED_Init();
   SD_load();

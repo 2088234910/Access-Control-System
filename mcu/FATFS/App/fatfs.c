@@ -65,19 +65,19 @@ void SD_load(void)
 void SD_unload(void)
 {
     OLED_Clear();
-    f_mount(0,SDPath,0);  /* È¡Ïû¹ÒÔØ */
+    f_mount(0,SDPath,0);
     OLED_ShowString(10, 48, "SD unloading successfully", OLED_8X16);
     OLED_Update();
     HAL_Delay(1000);
 }
 
-/* ×Ö¿âËÑË÷ */
+/* ï¿½Ö¿ï¿½ï¿½ï¿½ï¿½ï¿½ */
 uint8_t Find_Chinese(uint8_t* p, uint8_t* buffer)
 {
     FRESULT fre;
 	uint8_t High8bit,Low8bit;
-	High8bit=*p;		 /*  ¸ß8Î»Êý¾Ý  */
-	Low8bit=*(p+1);		 /*  µÍ8Î»Êý¾Ý	*/
+	High8bit=*p;
+	Low8bit=*(p+1);
     
     fre = f_lseek(&SDFile,32*((High8bit-0x81)*190+Low8bit-0x41));
 	if(fre == FR_OK)
