@@ -52,7 +52,7 @@ DWORD get_fattime(void)
 /* USER CODE BEGIN Application */
 void SD_load(void)
 {
-    OLED_Clear();
+    //OLED_Clear();
     if(f_mount(&SDFatFS, SDPath, 1) == FR_OK)
     {
         if(f_open(&SDFile, "Font16cn.bin", FA_OPEN_EXISTING | FA_READ) == FR_OK)    return;            
@@ -71,7 +71,6 @@ void SD_unload(void)
     HAL_Delay(1000);
 }
 
-/* �ֿ����� */
 uint8_t Find_Chinese(uint8_t* p, uint8_t* buffer)
 {
     FRESULT fre;

@@ -11,7 +11,8 @@ if __name__=="__main__":
     uart.write('Hello 01Studio!')#发送一条数据
 
     while True:
-        text=uart.read(128) #接收128个字符
+        text = uart.read(128) #接收128个字符
         if text != None:
-            print(text) #通过REPL打印串口接收的数据
+            decoded_text = text.decode('utf-8')
+            print(decoded_text)
         time.sleep(0.1) #100ms

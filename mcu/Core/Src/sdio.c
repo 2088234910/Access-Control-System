@@ -46,6 +46,8 @@ void MX_SDIO_SD_Init(void)
   hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
   hsd.Init.ClockDiv = 34;
   /* USER CODE BEGIN SDIO_Init 2 */
+    
+  //hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
   if (HAL_SD_Init(&hsd) == HAL_OK)
   {
     /* Enable wide operation */
