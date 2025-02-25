@@ -31,27 +31,7 @@ typedef struct Menu{
     struct Menu* child;
 }MENU;
 
-/***************************  菜单生成部分  ***************************/
 void Menu_Init(void);
-MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
-MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
-MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
-MENU* Circle_Menu(void);
-void MENU_child(void);
-void MENU_parent(void);
-void No_Fun(void);
 void Menu_Choose(void);
-
-/***************************  菜单显示与移动部分  ***************************/
-uint16_t numabs(int16_t num);
-int16_t max(int16_t a, int16_t b, int16_t c, int16_t d);
-void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
-void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style);
-void ShowMenuList(void);
-void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
-void MoveCursorLinear(void);
-void MoveCursorPID(void);
-void MoveCursorUnLinear(void);
-void MoveCursor(void);
 
 #endif

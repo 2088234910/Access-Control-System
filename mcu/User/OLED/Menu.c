@@ -15,93 +15,28 @@ CoordinateStyle Style = {   //光标样式
 	0  //速度，0,1,2分别代表慢中快
 };
 
-/***************************  生成部分  ***************************/
-MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
-{
-    MENU* node = malloc(sizeof(MENU));
-    strcpy(node->Name, Name);  
-    node->Width = Width;
-    node->Height = Height;
-    node->Frame = Frame;
-    node->FontSize = FontSize;
-    node->Function = Function;
-    
-    node->last   = NULL;
-    node->next   = NULL;
-    node->parent = node;
-    node->child  = node;
-    
-    return node;
-}
+/***************************  static函数申明  ***************************/
 
-MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
-{
-    MENU* node = malloc(sizeof(MENU));
-    strcpy(node->Name, Name);  
-    node->Width = Width;
-    node->Height = Height;
-    node->Frame = Frame;
-    node->FontSize = FontSize;
-    node->Function = Function;
-    
-    node->last   = nowMenu;
-    node->next   = NULL;
-    node->parent = nowMenu->parent;
-    node->child  = node;
-    
-    nowMenu->next = node;
-    
-    return node;
-}
+static MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
+static MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
+static MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
+static MENU* Circle_Menu(void);
+static void MENU_child(void);
+static void MENU_parent(void);
+static void No_Fun(void);
+static uint16_t numabs(int16_t num);
+static int16_t max(int16_t a, int16_t b, int16_t c, int16_t d);
+static void CurrentCursorInit(void);
+static void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
+static void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style);
+static void ShowMenuList(void);
+static void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
+static void MoveCursorLinear(void);
+static void MoveCursorPID(void);
+static void MoveCursorUnLinear(void);
+static void MoveCursor(void);
 
-MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
-{
-    MENU* node = malloc(sizeof(MENU));
-    strcpy(node->Name, Name);  
-    node->Width = Width;
-    node->Height = Height;
-    node->Frame = Frame;
-    node->FontSize = FontSize;
-    node->Function = Function;
-    
-    node->last   = NULL;
-    node->next   = NULL;
-    node->parent = nowMenu;
-    node->child  = node;
-    
-    nowMenu->child = node;
-    
-    return node;
-}
-
-MENU* Circle_Menu(void)
-{
-    MENU* finalMenu = nowMenu;
-    while(nowMenu->last != NULL)
-    {
-        nowMenu = nowMenu->last;
-    }
-    nowMenu->last = finalMenu;
-    finalMenu->next = nowMenu;
-    
-    return nowMenu->parent;
-}
-
-void MENU_child(void)
-{
-    nowMenu = nowMenu->child;
-    ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
-}
-
-void MENU_parent(void)
-{
-    nowMenu = nowMenu->parent;
-    ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
-}
-void No_Fun(void)
-{
-    
-}
+/***************************  User部分  ***************************/
 
 void Menu_Init(void)
 {
@@ -118,12 +53,8 @@ void Menu_Init(void)
     nowMenu = Circle_Menu();
 }
 
-static void CurrentCursorInit(){
-    CurrentCursor.Width = nowMenu->Width;
-    CurrentCursor.Height = nowMenu->Height;
-}
-
-void Menu_Choose(void){
+void Menu_Choose(void)
+{
     OLED_Clear();
     //DrawFrame(2,2,82,62,2);      //光标尺寸、边框尺寸、文本位置都有待斟酌
     CurrentCursorInit();
@@ -148,9 +79,106 @@ void Menu_Choose(void){
 	}
 }
 
+/***************************  生成部分  ***************************/
+
+static MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
+{
+    MENU* node = malloc(sizeof(MENU));
+    strcpy(node->Name, Name);  
+    node->Width = Width;
+    node->Height = Height;
+    node->Frame = Frame;
+    node->FontSize = FontSize;
+    node->Function = Function;
+    
+    node->last   = NULL;
+    node->next   = NULL;
+    node->parent = node;
+    node->child  = node;
+    
+    return node;
+}
+
+static MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
+{
+    MENU* node = malloc(sizeof(MENU));
+    strcpy(node->Name, Name);  
+    node->Width = Width;
+    node->Height = Height;
+    node->Frame = Frame;
+    node->FontSize = FontSize;
+    node->Function = Function;
+    
+    node->last   = nowMenu;
+    node->next   = NULL;
+    node->parent = nowMenu->parent;
+    node->child  = node;
+    
+    nowMenu->next = node;
+    
+    return node;
+}
+
+static MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
+{
+    MENU* node = malloc(sizeof(MENU));
+    strcpy(node->Name, Name);  
+    node->Width = Width;
+    node->Height = Height;
+    node->Frame = Frame;
+    node->FontSize = FontSize;
+    node->Function = Function;
+    
+    node->last   = NULL;
+    node->next   = NULL;
+    node->parent = nowMenu;
+    node->child  = node;
+    
+    nowMenu->child = node;
+    
+    return node;
+}
+
+static MENU* Circle_Menu(void)
+{
+    MENU* finalMenu = nowMenu;
+    while(nowMenu->last != NULL)
+    {
+        nowMenu = nowMenu->last;
+    }
+    nowMenu->last = finalMenu;
+    finalMenu->next = nowMenu;
+    
+    return nowMenu->parent;
+}
+
+static void MENU_child(void)
+{
+    nowMenu = nowMenu->child;
+    ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
+}
+
+static void MENU_parent(void)
+{
+    nowMenu = nowMenu->parent;
+    ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
+}
+static void No_Fun(void)
+{
+    
+}
+
 /***************************  显示部分  ***************************/
+
+static void CurrentCursorInit()
+{
+    CurrentCursor.Width = nowMenu->Width;
+    CurrentCursor.Height = nowMenu->Height;
+}
+
 //对某一区域取反色
-void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height){
+static void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
+{
 	if(Style.Form==0){
 		OLED_ReverseArea(X, Y, Width, Height);
 		return;
@@ -191,7 +219,8 @@ void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height){
 	
 }
 //画出菜单外框
-void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style){
+static void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style)
+{
 	if(Style==0){return;}
 	if(Style==1){
 		OLED_DrawRectangle(X, Y,Width,Height,OLED_UNFILLED);
@@ -209,7 +238,8 @@ void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style){
 }
 
 //打印菜单列表
-void ShowMenuList(void){
+static void ShowMenuList(void)
+{
 	MENU * NowP = nowMenu;
     int16_t NowY = TargetCursor.Y;
     OLED_Clear();
@@ -234,8 +264,10 @@ void ShowMenuList(void){
 }
 
 /***************************  移动部分  ***************************/
+
 //改变目标光标位置与大小
-void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height){
+static void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
+{
 	if (Y<0)  Y = 0;    // 
     if (Y>48) Y = 48;   // 64-16
     TargetCursor.X=X;
@@ -245,7 +277,8 @@ void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height){
 }
 
 //取最大值函数
-int16_t max(int16_t a, int16_t b, int16_t c, int16_t d) {
+static int16_t max(int16_t a, int16_t b, int16_t c, int16_t d)
+{
     int16_t max_val = a; // 假设a是最大的
 
     if (b > max_val) {
@@ -261,7 +294,8 @@ int16_t max(int16_t a, int16_t b, int16_t c, int16_t d) {
     return max_val; // 返回最大值
 }
 //取绝对值函数
-uint16_t numabs(int16_t num){
+static uint16_t numabs(int16_t num)
+{
 	if(num>0)
 		return num;
 	if(num<0)
@@ -269,7 +303,8 @@ uint16_t numabs(int16_t num){
 	return 0;
 }
 
-void MoveCursorLinear(void) {
+static void MoveCursorLinear(void)
+{
 	loop:
 	//如果当前光标等于目标光标，则不执行光标移动操作，直接return。
     if(CurrentCursor.X==TargetCursor.X && CurrentCursor.Y==TargetCursor.Y && CurrentCursor.Width==TargetCursor.Width && CurrentCursor.Height==TargetCursor.Height){
@@ -337,7 +372,8 @@ void MoveCursorLinear(void) {
      
 }
 
-void MoveCursorPID(void) {
+static void MoveCursorPID(void)
+{
 	loop:
 	//如果当前光标等于目标光标，则不执行光标移动操作，直接return。
     if(CurrentCursor.X==TargetCursor.X && CurrentCursor.Y==TargetCursor.Y && CurrentCursor.Width==TargetCursor.Width && CurrentCursor.Height==TargetCursor.Height){
@@ -345,23 +381,23 @@ void MoveCursorPID(void) {
 	}
 	
 	// 默认PID控制参数,速度中等
-		float Kp_x = 0.4;  // 比例系数 X
-		float Kd_x = 0.2;  // 导数系数 X
-		float Ki_x = 0.1;  // 积分系数 X
-		      
-		float Kp_y = 0.5;  // 比例系数 Y
-		float Kd_y = 0.0;  // 导数系数 Y
-		float Ki_y = 0.1;  // 积分系数 Y
-		      
-		float Kp_w = 0.4;  // 比例系数 Width
-		float Kd_w = 0.2;  // 导数系数 Width
-		float Ki_w = 0.1;  // 积分系数 Width
-		      
-		float Kp_h = 0.4;  // 比例系数 Height
-		float Kd_h = 0.2;  // 导数系数 Height
-		float Ki_h = 0.1;  // 积分系数 Height
+    float Kp_x = 0.4;  // 比例系数 X
+    float Kd_x = 0.2;  // 导数系数 X
+    float Ki_x = 0.1;  // 积分系数 X
+          
+    float Kp_y = 0.5;  // 比例系数 Y
+    float Kd_y = 0.0;  // 导数系数 Y
+    float Ki_y = 0.1;  // 积分系数 Y
+          
+    float Kp_w = 0.4;  // 比例系数 Width
+    float Kd_w = 0.2;  // 导数系数 Width
+    float Ki_w = 0.1;  // 积分系数 Width
+          
+    float Kp_h = 0.4;  // 比例系数 Height
+    float Kd_h = 0.2;  // 导数系数 Height
+    float Ki_h = 0.1;  // 积分系数 Height
 	
-	if(Style.Speed==0){//慢速
+	if(Style.Speed==0) {//慢速
 		Kp_x = 0.4;  // 比例系数 X
 		Kd_x = 0.3;  // 导数系数 X
 		Ki_x = 0.1;  // 积分系数 X
@@ -378,7 +414,7 @@ void MoveCursorPID(void) {
 		Kd_h = 0.2;  // 导数系数 Height
 		Ki_h = 0.1;  // 积分系数 Height
 	}
-	if(Style.Speed==1){//中等速度
+	if(Style.Speed==1) {//中等速度
 		Kp_x = 0.4;  // 比例系数 X
 		Kd_x = 0.2;  // 导数系数 X
 		Ki_x = 0.1;  // 积分系数 X
@@ -395,7 +431,7 @@ void MoveCursorPID(void) {
 		Kd_h = 0.2;  // 导数系数 Height
 		Ki_h = 0.1;  // 积分系数 Height
 	}
-	if(Style.Speed==2){//快速
+	if(Style.Speed==2) {//快速
 		Kp_x = 0.7;  // 比例系数 X
 		Kd_x = 0.2;  // 导数系数 X
 		Ki_x = 0.3;  // 积分系数 X
@@ -467,7 +503,9 @@ void MoveCursorPID(void) {
     ReverseCoordinate(TargetCursor.X, TargetCursor.Y, TargetCursor.Width, TargetCursor.Height);
 	OLED_Update();
 }
-void MoveCursorUnLinear(void) {
+
+static void MoveCursorUnLinear(void)
+{
 loop:
 	//如果当前光标等于目标光标，则不执行光标移动操作，直接return。
     if(CurrentCursor.X==TargetCursor.X && CurrentCursor.Y==TargetCursor.Y && CurrentCursor.Width==TargetCursor.Width && CurrentCursor.Height==TargetCursor.Height){
@@ -547,7 +585,8 @@ loop:
 	OLED_Update();
      
 }
-void MoveCursor(void){
+static void MoveCursor(void)
+{
 	if(Style.Move==0){
 		MoveCursorLinear();
 		return;

@@ -182,7 +182,7 @@ void my_uart1_send_variable(uint8_t *tdata)
     while(HAL_DMA_GetState(&hdma_usart1_tx) == HAL_DMA_STATE_BUSY) HAL_Delay(1);
     while(*tdata != '\0') 
     {
-        HAL_UART_Transmit(&huart1,tdata,1,0xffff);
+        HAL_UART_Transmit(&huart1,tdata, 1, 0xffff);
         tdata++;
     }
 }
