@@ -325,23 +325,17 @@ class FaceRecognition:
                 recg_text = recg_results[i]
                 pl.osd_img.draw_string_advanced(x1,y1,32,recg_text,color=(255, 255, 0, 0))
 
-
-if __name__=="__main__":
-    # 注意：执行人脸识别任务之前，需要先执行人脸注册任务进行人脸身份注册生成feature数据库
-    # 显示模式，默认"hdmi",可以选择"hdmi"和"lcd"
+def face_rec_init():
     display_mode="lcd"
-    if display_mode=="hdmi":
-        display_size=[1920,1080]
-    else:
-        display_size=[800,480]
-    # 人脸检测模型路径
-    face_det_kmodel_path="/sdcard/examples/kmodel/face_detection_320.kmodel"
-    # 人脸识别模型路径
-    face_reg_kmodel_path="/sdcard/examples/kmodel/face_recognition.kmodel"
-    # 其它参数
-    anchors_path="/sdcard/examples/utils/prior_data_320.bin"
-    database_dir ="/sdcard/examples/utils/db/"
+    display_size=[800,480]
     rgb888p_size=[1920,1080]
+    pl=PipeLine(rgb888p_size=rgb888p_size,display_size=display_size,display_mode=display_mode)
+    pl.create()
+
+    face_det_kmodel_path="/data/face_model/face_detection_320.kmodel"
+    face_reg_kmodel_path="/data/face_model/face_recognition.kmodel"
+    anchors_path="/sdcard/examples/utils/prior_data_320.bin"
+    database_dir="/data/face_reg/"
     face_det_input_size=[320,320]
     face_reg_input_size=[112,112]
     confidence_threshold=0.5
@@ -352,23 +346,23 @@ if __name__=="__main__":
     anchors = anchors.reshape((anchor_len,det_dim))
     face_recognition_threshold = 0.75        # 人脸识别阈值
 
-    # 初始化PipeLine，只关注传给AI的图像分辨率，显示的分辨率
-    pl=PipeLine(rgb888p_size=rgb888p_size,display_size=display_size,display_mode=display_mode)
-    pl.create()
-    fr=FaceRecognition(face_det_kmodel_path,face_reg_kmodel_path,det_input_size=face_det_input_size,reg_input_size=face_reg_input_size,database_dir=database_dir,anchors=anchors,confidence_threshold=confidence_threshold,nms_threshold=nms_threshold,face_recognition_threshold=face_recognition_threshold,rgb888p_size=rgb888p_size,display_size=display_size)
+    return FaceRecognition(face_det_kmodel_path,face_reg_kmodel_path,
+                           det_input_size=face_det_input_size,reg_input_size=face_reg_input_size,database_dir=database_dir,anchors=anchors,
+                           confidence_threshold=confidence_threshold,nms_threshold=nms_threshold,face_recognition_threshold=face_recognition_threshold,
+                           rgb888p_size=rgb888p_size,display_size=display_size), pl
+
+
+if __name__=="__main__":
+    frec, pl = face_rec_init()
 
     clock = time.clock()
-
     while True:
-
         os.exitpoint()
-
         clock.tick()
-
         img=pl.get_frame()                      # 获取当前帧
-        det_boxes,recg_res=fr.run(img)          # 推理当前帧
+        det_boxes,recg_res=frec.run(img)        # 推理当前帧
         print(det_boxes,recg_res)               # 打印结果
-        fr.draw_result(pl,det_boxes,recg_res)   # 绘制推理结果
+        frec.draw_result(pl,det_boxes,recg_res) # 绘制推理结果
         pl.show_image()                         # 展示推理效果
         gc.collect()
 

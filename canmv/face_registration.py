@@ -245,13 +245,12 @@ class FaceRegistration:
             img_return=img_res.reshape((1,shape[2],shape[0],shape[1]))
         return  img_return
 
-
-if __name__=="__main__":
-    face_det_kmodel_path="/sdcard/examples/kmodel/face_detection_320.kmodel"    # 人脸检测模型路径
-    face_reg_kmodel_path="/sdcard/examples/kmodel/face_recognition.kmodel"  # 人脸注册模型路径
+def face_reg_init():
+    face_det_kmodel_path="/data/face_model/face_detection_320.kmodel"
+    face_reg_kmodel_path="/data/face_model/face_recognition.kmodel"
     anchors_path="/sdcard/examples/utils/prior_data_320.bin"
-    database_dir="/sdcard/examples/utils/db/"
-    database_img_dir="/sdcard/examples/utils/db_img/"
+    database_dir="/data/face_reg/"
+    database_img_dir="/data/face_reg/"
     face_det_input_size=[320,320]
     face_reg_input_size=[112,112]
     confidence_threshold=0.5
@@ -260,10 +259,13 @@ if __name__=="__main__":
     det_dim=4
     anchors = np.fromfile(anchors_path, dtype=np.float)
     anchors = anchors.reshape((anchor_len,det_dim))
-    max_register_face = 100              #数据库最多人脸个数
-    feature_num = 128                    #人脸识别特征维度
+    #    max_register_face = 100              #数据库最多人脸个数
+    #    feature_num = 128                    #人脸识别特征维度
 
-    fr=FaceRegistration(face_det_kmodel_path,face_reg_kmodel_path,det_input_size=face_det_input_size,reg_input_size=face_reg_input_size,database_dir=database_dir,anchors=anchors,confidence_threshold=confidence_threshold,nms_threshold=nms_threshold)
+    return FaceRegistration(face_det_kmodel_path,face_reg_kmodel_path,det_input_size=face_det_input_size,reg_input_size=face_reg_input_size,database_dir=database_dir,anchors=anchors,confidence_threshold=confidence_threshold,nms_threshold=nms_threshold)
+
+if __name__=="__main__":
+    freg = face_reg_init()
 
     # 获取图像列表
     img_list = os.listdir(database_img_dir)
@@ -274,9 +276,9 @@ if __name__=="__main__":
         img = image.Image(full_img_file)
         img.compress_for_ide()
         # 转rgb888的chw格式
-        rgb888p_img_ndarry = fr.image2rgb888array(img)
+        rgb888p_img_ndarry = freg.image2rgb888array(img)
         # 人脸注册
-        fr.run(rgb888p_img_ndarry,img_file)
+        freg.run(rgb888p_img_ndarry,img_file)
         gc.collect()
 
 

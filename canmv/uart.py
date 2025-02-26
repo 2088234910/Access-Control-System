@@ -1,6 +1,5 @@
 import time
-from machine import UART
-from machine import FPIOA
+from machine import UART, FPIOA
 
 fpioa = FPIOA()
 fpioa.set_function(11,FPIOA.UART2_TXD)
