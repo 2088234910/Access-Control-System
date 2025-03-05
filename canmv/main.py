@@ -44,6 +44,25 @@ def FaceRegistration():
 def FaceRecognition():
     print("FaceRecognition running")
 
+    clock = time.clock()
+    while True:
+        os.exitpoint()
+        clock.tick()
+        img=pl.get_frame()
+        det_boxes,recg_res=frec.run(img)
+        frec.draw_result(pl,det_boxes,recg_res) # 绘制推理结果
+        pl.show_image()
+        if (det_boxes and recg_res[0] != 'unknown'):
+            print(det_boxes,recg_res)
+            # 发送命令返回值
+            time.sleep(2)
+            pl.osd_img.clear()
+            pl.show_image()
+            gc.collect()
+            break
+        gc.collect()
+#        print(clock.fps())
+
 def Ring():
     print("Ring running")
 
@@ -65,17 +84,17 @@ command_handlers = {
 
 def main():
     print("main running")
-    FaceRegistration()
-#    while True:
-#        text = uart.uart.read(128) #接收128个字符
-#        if text != None:
-#            received_data = int(uart.readline().strip().decode('utf-8'))
-#            print(received_data)
-#            try:
-#                command = SerialCommands(received_data)
-#                command_handlers[command]()
-#            except ValueError:
-#                print(f"Unknown command received: {received_data}")
+    FaceRecognition()
+    while True:
+        text = uart.uart.read(128) #接收128个字符
+        if text != None:
+            received_data = int(uart.readline().strip().decode('utf-8'))
+            print(received_data)
+            try:
+                command = SerialCommands(received_data)
+                command_handlers[command]()
+            except ValueError:
+                print(f"Unknown command received: {received_data}")
 # 串口关闭等清理操作待添加
 
 if __name__=="__main__":

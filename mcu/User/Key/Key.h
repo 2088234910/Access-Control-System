@@ -4,11 +4,11 @@
 //按键
 typedef enum{
     Key_NULL = 0,
-	Key_UP,				
-	Key_DOWN,			
-	Key_MID						
+	Key_UP,
+	Key_DOWN,
+	Key_MID
 }KSTATE;
 
-extern KSTATE Key_State;
+extern volatile KSTATE Key_State;
 
 #endif
