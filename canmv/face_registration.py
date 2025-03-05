@@ -215,7 +215,13 @@ class FaceRegistration:
     def run(self,input_np,img_file):
         self.face_det.config_preprocess(input_image_size=[input_np.shape[3],input_np.shape[2]])
         # 该run函数来自FaceDetApp父类AIBase。执行模型推理全部过程，包含预处理、推理、获取输出、后处理，返回后处理输出，并在Display绘制结果
-        det_boxes,landms=self.face_det.run(input_np)
+#        det_boxes,landms = self.face_det.run(input_np)
+        try:
+            det_boxes,landms = self.face_det.run(input_np)
+        except ValueError:
+            print("error")
+            det_boxes, landms = None, None
+
         if det_boxes:
             if det_boxes.shape[0] == 1:
                 # 只检测到一张人脸时，则将该人脸注册到数据库
@@ -226,10 +232,13 @@ class FaceRegistration:
                     with open(self.database_dir+'{}.bin'.format(db_i_name), "wb") as file:
                         file.write(reg_result.tobytes())
                         print('Success!')
+                        return 1
             else:
                 print('Only one person in a picture when you sign up')
+                return -1
         else:
             print('No person detected')
+            return -1
 
     # 将Image转换为rgb888格式
     def image2rgb888array(self,img):   #4维
@@ -243,6 +252,11 @@ class FaceRegistration:
             img_res=img_tmp_trans.copy()
             # chw,rgb888
             img_return=img_res.reshape((1,shape[2],shape[0],shape[1]))
+        return  img_return
+
+    def dimension_convert(self,img):   #4维
+        img_res = img.copy()
+        img_return = img_res.reshape((1,img.shape[0],img.shape[1],img.shape[2]))
         return  img_return
 
 def face_reg_init():
@@ -266,19 +280,21 @@ def face_reg_init():
 
 if __name__=="__main__":
     freg = face_reg_init()
-
     # 获取图像列表
+    database_img_dir="/data/face_reg/"
     img_list = os.listdir(database_img_dir)
     for img_file in img_list:
         #本地读取一张图像
-        full_img_file = database_img_dir + img_file
-        print(full_img_file)
-        img = image.Image(full_img_file)
-        img.compress_for_ide()
-        # 转rgb888的chw格式
-        rgb888p_img_ndarry = freg.image2rgb888array(img)
-        # 人脸注册
-        freg.run(rgb888p_img_ndarry,img_file)
-        gc.collect()
+        if img_file.endswith(".jpg"):
+            full_img_file = database_img_dir + img_file
+            print(full_img_file)
+            img = image.Image(full_img_file)
+            img.compress_for_ide()  # 图片压缩，参数为压缩质量，0-100，默认质量为50
+            # 转rgb888的chw格式
+            rgb888p_img_ndarry = freg.image2rgb888array(img)
+            print(rgb888p_img_ndarry.shape)
+            # 人脸注册
+            freg.run(rgb888p_img_ndarry,img_file)
+            gc.collect()
 
 

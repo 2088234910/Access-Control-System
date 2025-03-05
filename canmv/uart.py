@@ -12,6 +12,6 @@ if __name__=="__main__":
     while True:
         text = uart.read(128) #接收128个字符
         if text != None:
-            z
+            decoded_text = text.decode('utf-8')
             print(decoded_text)
         time.sleep(0.1) #100ms
