@@ -3,7 +3,6 @@
 #include "Menu.h"
 #include "OLED.h"
 #include "Key.h"
-#include "protocol.h"
 
 MENU* nowMenu = NULL;
 
@@ -38,59 +37,12 @@ static void MoveCursorUnLinear(void);
 static void MoveCursor(void);
 
 /***************************  User部分  ***************************/
-void FaceRegistration()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_FaceRegistration();
-    Key_State = Key_NULL;
-    while(1)
-    {
-        if (Key_State == Key_MID) {
-            break;
-        }
-        //补充：接收到命令返回值处理
-    }
-}
-
-void FaceRecognition()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_FaceRecognition();
-    Key_State = Key_NULL;
-    while(1)
-    {
-        if (Key_State == Key_MID) {
-            break;
-        }
-        //补充：接收到命令返回值处理；接收命令返回值超时处理
-    }
-}
-
-void Ring()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"打铃中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_Ring();
-    Key_State = Key_NULL;
-    while(1)
-    {
-        if (Key_State == Key_MID) {
-            break;
-        }
-        //补充：接收到命令返回值处理；接收命令返回值超时处理
-    }
-}
 
 void Menu_Init(void)
 {
-    nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*FaceRecognition);
-    nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*FaceRegistration);
-    nowMenu = Creat_BrotherMenu("- 铃声",72,16,0,OLED_8X16,*Ring);
+    nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 铃声",72,16,0,OLED_8X16,*No_Fun);
     nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*No_Fun);
     nowMenu = Creat_BrotherMenu("- 设置",72,16,0,OLED_8X16,*MENU_child);
         nowMenu = Creat_ChildMenu("- A",72,16,0,OLED_8X16,*No_Fun);
@@ -108,15 +60,15 @@ void Menu_Init(void)
 void Menu_Choose(void)
 {
     if(Key_State != Key_NULL) {
-        if (Key_State == Key_UP) {
+        if(Key_State == Key_UP) {
             nowMenu = nowMenu->last;
             ChangeTargetCursor(0,CurrentCursor.Y-nowMenu->Height,nowMenu->Width,nowMenu->Height);
         }
-        else if (Key_State == Key_DOWN) {
+        else if(Key_State == Key_DOWN) {
             nowMenu = nowMenu->next;
             ChangeTargetCursor(0,CurrentCursor.Y+CurrentCursor.Height,nowMenu->Width,nowMenu->Height);
         }
-        else if (Key_State == Key_MID) {
+        else if(Key_State == Key_MID) {
             (*nowMenu->Function)();
         }
         if (CurrentCursor.Y == TargetCursor.Y || Key_State == Key_MID)  ShowMenuList();

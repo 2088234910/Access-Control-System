@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../User/OLED;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../User/Key;../User/Esp8266;..\User\protocol</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../User/OLED;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../User/Key;../User/Esp8266</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1651,11 +1651,6 @@
               <FileName>Esp8266.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Esp8266\Esp8266.c</FilePath>
-            </File>
-            <File>
-              <FileName>protocol.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\protocol\protocol.c</FilePath>
             </File>
           </Files>
         </Group>

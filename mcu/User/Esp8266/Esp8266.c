@@ -44,7 +44,7 @@ int Esp_Cmd(const char *str, const char *res)
     my_uart2_send_variable((uint8_t *)str);
 	while (contains_substring(Usart2type.UsartRecBuffer, res) == 0) // 等待期望的响应
 	{
-		HAL_Delay(200); // 等待响应  
+		HAL_Delay(75); // 等待响应  
         my_uart2_send_variable((uint8_t *)str);
         //时间需修改,加入超时处理
 	}
