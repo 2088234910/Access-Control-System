@@ -51,32 +51,30 @@ void Menu_Init(void)
         nowMenu = Creat_BrotherMenu("- <<<",72,16,0,OLED_8X16,*MENU_parent);
         nowMenu = Circle_Menu();
     nowMenu = Circle_Menu();
+    
+    OLED_Clear();
+    CurrentCursorInit();
+	ShowMenuList();
 }
 
 void Menu_Choose(void)
 {
-    OLED_Clear();
-    //DrawFrame(2,2,82,62,2);      //光标尺寸、边框尺寸、文本位置都有待斟酌
-    CurrentCursorInit();
-	ShowMenuList();
-	while(1){
-        if(Key_State != Key_NULL){
-            if(Key_State == Key_UP){
-                nowMenu = nowMenu->last;
-                ChangeTargetCursor(0,CurrentCursor.Y-nowMenu->Height,nowMenu->Width,nowMenu->Height);
-            }
-            else if(Key_State == Key_DOWN){
-                nowMenu = nowMenu->next;
-                ChangeTargetCursor(0,CurrentCursor.Y+CurrentCursor.Height,nowMenu->Width,nowMenu->Height);
-            }
-            else if(Key_State == Key_MID){
-                (*nowMenu->Function)();
-            }
-            if (CurrentCursor.Y == TargetCursor.Y || Key_State == Key_MID)  ShowMenuList();
-            MoveCursor(); //光标移动
-            Key_State = Key_NULL;
-        }  
-	}
+    if(Key_State != Key_NULL) {
+        if(Key_State == Key_UP) {
+            nowMenu = nowMenu->last;
+            ChangeTargetCursor(0,CurrentCursor.Y-nowMenu->Height,nowMenu->Width,nowMenu->Height);
+        }
+        else if(Key_State == Key_DOWN) {
+            nowMenu = nowMenu->next;
+            ChangeTargetCursor(0,CurrentCursor.Y+CurrentCursor.Height,nowMenu->Width,nowMenu->Height);
+        }
+        else if(Key_State == Key_MID) {
+            (*nowMenu->Function)();
+        }
+        if (CurrentCursor.Y == TargetCursor.Y || Key_State == Key_MID)  ShowMenuList();
+        MoveCursor(); //光标移动
+        Key_State = Key_NULL;
+    }
 }
 
 /***************************  生成部分  ***************************/

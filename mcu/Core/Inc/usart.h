@@ -34,21 +34,38 @@ extern "C" {
 
 extern UART_HandleTypeDef huart1;
 
+extern UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN Private defines */
 
-#define USART_MAX_LEN       128
-extern uint8_t DMA_USART1_RX_BUF[USART_MAX_LEN];
-extern uint8_t DMA_USART1_TX_BUF[USART_MAX_LEN];
+#define USART1_DMA_REC_SIZE 600
+#define USART1_REC_SIZE 1200
+#define USART2_DMA_REC_SIZE 600
+#define USART2_REC_SIZE 1200
+
+typedef struct
+{
+    uint8_t UsartRecFlag;                               // 标志位
+    uint16_t UsartRecLen;                               // 接收数据长度
+    uint16_t UsartDMARecLEN;                            // DMA 接收长度
+    uint8_t  UsartDMARecBuffer[USART1_DMA_REC_SIZE];    // DMA 接收数组
+    uint8_t  UsartRecBuffer[USART1_REC_SIZE];           // 接收组
+}UsartType;
+
+extern UsartType Usart1type, Usart2type;
 
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
+void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-void my_uart1_init(void);
+void my_uart_init(void);
 void my_uart1_send(uint8_t *tdata,uint16_t tnum);
 void my_uart1_send_variable(uint8_t *tdata);
+void my_uart2_send(uint8_t *tdata,uint16_t tnum);
+void my_uart2_send_variable(uint8_t *tdata);
 
 /* USER CODE END Prototypes */
 

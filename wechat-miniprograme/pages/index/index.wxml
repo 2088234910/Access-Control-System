@@ -1,4 +1,6 @@
 <!--index.wxml-->
 <view class="container">
   <button type="primary" bindtap="taphere">helloword</button>
+  <view style="height:10px"></view>
+  <button type="primary" bindtap="open">开门</button>
 </view>

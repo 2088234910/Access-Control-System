@@ -314,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../User/OLED;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../User/Key</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../User/OLED;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../User/Key;../User/Esp8266</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1646,6 +1646,11 @@
               <FileName>Key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Key\Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Esp8266.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Esp8266\Esp8266.c</FilePath>
             </File>
           </Files>
         </Group>

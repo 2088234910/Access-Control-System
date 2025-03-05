@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "oled.h"
 #include "menu.h"
+#include "Esp8266.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,18 +94,24 @@ int main(void)
   MX_FATFS_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  my_uart1_init();
+  my_uart_init();
+  Esp_Init();
   OLED_Init();
   SD_load();
   Menu_Init();
-  Menu_Choose();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  //加入加载完成标识
   while (1)
   {
+      Menu_Choose();
+      if (Usart2type.UsartRecFlag == 1) {
+
+      }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

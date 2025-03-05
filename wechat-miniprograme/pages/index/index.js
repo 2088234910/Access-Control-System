@@ -5,6 +5,7 @@ var client = null
 
 Page({
   data: {
+    temp_state:0
   },
   onLoad() {
     this.connectMqtt()
@@ -22,6 +23,7 @@ Page({
       console.log('服务器连接成功', connAck);
       client.subscribe('/iot/6872/device', { qos: 0 }, (err) => {
         if (!err) {
+          client.publish('/iot/6872/temp','off')
           console.log('订阅成功');
         } else {
           console.error('订阅失败', err);
@@ -36,5 +38,18 @@ Page({
   },
   taphere() {
     console.log('helloworld')
+  },
+  open() {
+    if (this.temp_state == 0) {
+      client.publish('/iot/6872/temp','on')
+      this.setData({
+        temp_state:1
+      })
+    } else if (this.temp_state == 1) {
+      client.publish('/iot/6872/temp','off')
+      this.setData({
+        temp_state:0
+      })
+    }
   },
 })
