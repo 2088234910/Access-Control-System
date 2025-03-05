@@ -2,7 +2,7 @@
 #include "main.h"
 #include "tim.h"
 
-KSTATE Key_State;
+volatile KSTATE Key_State;
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -21,11 +21,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if(htim==(&htim2))
   {
       HAL_TIM_Base_Stop_IT(&htim2);
-      if(HAL_GPIO_ReadPin(Key_UP_GPIO_Port,Key_UP_Pin)==0)
+      if (HAL_GPIO_ReadPin(Key_UP_GPIO_Port,Key_UP_Pin) == 0)
         Key_State = Key_UP;
-      else if(HAL_GPIO_ReadPin(Key_DOWN_GPIO_Port,Key_DOWN_Pin)==0)
+      else if (HAL_GPIO_ReadPin(Key_DOWN_GPIO_Port,Key_DOWN_Pin) == 0)
         Key_State = Key_DOWN;
-      else if(HAL_GPIO_ReadPin(Key_MID_GPIO_Port,Key_MID_Pin)==0)
+      else if (HAL_GPIO_ReadPin(Key_MID_GPIO_Port,Key_MID_Pin) == 0)
         Key_State = Key_MID;
   }
   /* USER CODE END Callback 1 */
