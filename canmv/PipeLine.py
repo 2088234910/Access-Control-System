@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     sensor = Sensor()
     sensor.reset()
-    sensor.set_framesize(width=800,height=480, chn = CAM_CHN_ID_1)
+    sensor.set_framesize(width=800,height=480, chn=CAM_CHN_ID_1)
     sensor.set_pixformat(Sensor.RGB565, chn=CAM_CHN_ID_1)
 #    #MediaManager.init()
 #    sensor.run()
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     while True:
         img_np = pl.get_frame()
-        img = sensor.snapshot(chn=CAM_CHN_ID_1)
+        img = pl.sensor.snapshot(chn=CAM_CHN_ID_1)
         img.save("/data/1.jpg")
         gc.collect()                    # 垃圾回收
 

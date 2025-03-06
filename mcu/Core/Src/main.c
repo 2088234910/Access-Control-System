@@ -26,6 +26,7 @@
 #include "oled.h"
 #include "menu.h"
 #include "Esp8266.h"
+#include "protocol.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,9 +110,7 @@ int main(void)
   while (1)
   {
       Menu_Choose();
-      if (Usart2type.UsartRecFlag == 1) {
-
-      }
+      ParseCmd();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

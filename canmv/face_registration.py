@@ -219,7 +219,6 @@ class FaceRegistration:
         try:
             det_boxes,landms = self.face_det.run(input_np)
         except ValueError:
-            print("error")
             det_boxes, landms = None, None
 
         if det_boxes:
@@ -231,7 +230,7 @@ class FaceRegistration:
                     reg_result = self.face_reg.run(input_np)
                     with open(self.database_dir+'{}.bin'.format(db_i_name), "wb") as file:
                         file.write(reg_result.tobytes())
-                        print('Success!')
+                        print('Face registration success!')
                         return 1
             else:
                 print('Only one person in a picture when you sign up')

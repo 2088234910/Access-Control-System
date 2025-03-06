@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define SOF         0x51
+#define EOF         0xFF
+
 #define FACEREG     0x30
 #define FACERCO     0x31
 #define FACEALARM   0x32
@@ -19,7 +22,7 @@ typedef struct
     uint8_t eof;    /*(0xFF) End of frame */
 } PacketType;
 
-//void ParseCmd(void);
+void ParseCmd(void);
 void COM_FaceRegistration(void);
 void COM_FaceRecognition(void);
 void COM_FaceAlarm(void);

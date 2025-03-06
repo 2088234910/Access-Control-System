@@ -14,7 +14,7 @@ import random
 import gc
 import sys
 import math
-#from media.sensor import *
+from media.sensor import *
 
 # 自定义人脸检测任务类
 class FaceDetApp(AIBase):
@@ -330,12 +330,14 @@ def face_rec_init():
     display_mode="lcd"
     display_size=[800,480]
     rgb888p_size=[1920,1080]
-#    sensor = Sensor()
-#    sensor.reset()
-#    sensor.set_framesize(width=800,height=480)
-#    sensor.set_pixformat(Sensor.RGB565)
+
+    sensor = Sensor()
+    sensor.reset()
+    sensor.set_framesize(width=800,height=480, chn=CAM_CHN_ID_1)
+    sensor.set_pixformat(Sensor.RGB565, chn=CAM_CHN_ID_1)
+
     pl=PipeLine(rgb888p_size=rgb888p_size,display_size=display_size,display_mode=display_mode)
-    pl.create()
+    pl.create(sensor)
 
     face_det_kmodel_path="/data/face_model/face_detection_320.kmodel"
     face_reg_kmodel_path="/data/face_model/face_recognition.kmodel"

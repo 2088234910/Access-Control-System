@@ -4,6 +4,7 @@ from machine import FPIOA
 import key
 import uart
 #import sensor
+from media.sensor import *
 import face_registration
 import face_recognition
 import ulab.numpy as np
@@ -29,17 +30,17 @@ def FaceRegistration():
 
     img_np = pl.get_frame()
     img_res = freg.dimension_convert(img_np)
-    print(img_res.shape)
+#    print(img_res.shape)
 
     file_name = f"face_{face_index_max+1}.jpg"
-    if (freg.run(img_res, file_name)):
-# 人脸图片保存暂未实现
-#        img = image.Image(960, 540, image.ARGB8888, alloc=image.ALLOC_REF, data=img_np)
-#        img.to_rgb565(True)
-#        img.save(face_save_dir+file_name)
+    if freg.run(img_res, file_name) == 1:
+        img = pl.sensor.snapshot(chn=CAM_CHN_ID_1)
+        img.save(face_save_dir+file_name)
         face_index_max += 1
+        uart.uart.write(bytes.fromhex('513001'))
+    else:
+        uart.uart.write(bytes.fromhex('513002'))
     gc.collect()
-    print("FaceRegistration done!")
 
 def FaceRecognition():
     print("FaceRecognition running")
@@ -54,12 +55,14 @@ def FaceRecognition():
         pl.show_image()
         if (det_boxes and recg_res[0] != 'unknown'):
             print(det_boxes,recg_res)
-            # 发送命令返回值
+            uart.uart.write(bytes.fromhex('513101'))
             time.sleep(2)
             pl.osd_img.clear()
             pl.show_image()
             gc.collect()
             break
+        else:
+            uart.uart.write(bytes.fromhex('513102'))
         gc.collect()
 #        print(clock.fps())
 
@@ -69,9 +72,9 @@ def Ring():
 #----- protocol -----#
 
 SerialCommands = {
-    "FaceRegistration": 1,
-    "FaceRecognition": 2,
-    "Ring": 3,
+    "FaceRegistration": 0x30,
+    "FaceRecognition": 0x31,
+    "Ring": 0x33,
 }
 
 command_handlers = {
@@ -84,18 +87,17 @@ command_handlers = {
 
 def main():
     print("main running")
-    FaceRecognition()
     while True:
-        text = uart.uart.read(128) #接收128个字符
-        if text != None:
-            received_data = int(uart.readline().strip().decode('utf-8'))
-            print(received_data)
-            try:
-                command = SerialCommands(received_data)
-                command_handlers[command]()
-            except ValueError:
-                print(f"Unknown command received: {received_data}")
-# 串口关闭等清理操作待添加
+        command = uart.uart.read(3)
+        if command is not None and len(command) == 3:
+            byte1, byte2, byte3 = command
+            print(f"Received bytes (hex): 0x{byte1:02X}, 0x{byte2:02X}, 0x{byte3:02X}")
+            if byte1 == 0x51:
+                if byte2 in command_handlers:
+                    command_handlers[byte2]()
+                else:
+                    print(f"Unknown command received: 0x{byte2:02X}")
+        time.sleep(0.1) #100ms
 
 if __name__=="__main__":
     main()
