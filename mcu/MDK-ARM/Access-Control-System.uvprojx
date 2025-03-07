@@ -1625,7 +1625,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>User</GroupName>
+          <GroupName>User/Menu</GroupName>
           <Files>
             <File>
               <FileName>Menu.c</FileName>
@@ -1642,16 +1642,31 @@
               <FileType>1</FileType>
               <FilePath>..\User\OLED\OLED_DATA.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>User/Key</GroupName>
+          <Files>
             <File>
               <FileName>Key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Key\Key.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>User/Esp8266</GroupName>
+          <Files>
             <File>
               <FileName>Esp8266.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Esp8266\Esp8266.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>User/protocol</GroupName>
+          <Files>
             <File>
               <FileName>protocol.c</FileName>
               <FileType>1</FileType>

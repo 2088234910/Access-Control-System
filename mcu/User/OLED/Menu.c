@@ -27,7 +27,7 @@ static void MENU_parent(void);
 static void No_Fun(void);
 static uint16_t numabs(int16_t num);
 static int16_t max(int16_t a, int16_t b, int16_t c, int16_t d);
-static void CurrentCursorInit(void);
+static void CursorInit(void);
 static void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
 static void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style);
 static void ShowMenuList(void);
@@ -45,12 +45,32 @@ void FaceRegistration()
     OLED_Update();
     COM_FaceRegistration();
     Key_State = Key_NULL;
+    uint8_t res = NRES;
     while(1)
     {
         if (Key_State == Key_MID) {
             break;
         }
-        //补充：接收到命令返回值处理
+        res = ParseCmd();
+        if (res == POK) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册成功",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;
+        } else if (res == PFAIL) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册失败",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;   
+        } else if (res == PERROR) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;   
+        }   
     }
 }
 
@@ -61,12 +81,32 @@ void FaceRecognition()
     OLED_Update();
     COM_FaceRecognition();
     Key_State = Key_NULL;
+    uint8_t res = NRES;
     while(1)
     {
         if (Key_State == Key_MID) {
             break;
         }
-        //补充：接收到命令返回值处理；接收命令返回值超时处理
+        res = ParseCmd();
+        if (res == POK) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别成功",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;
+        } else if (res == PFAIL) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别失败",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;   
+        } else if (res == PERROR) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;   
+        }   
     }
 }
 
@@ -77,12 +117,12 @@ void Ring()
     OLED_Update();
     COM_Ring();
     Key_State = Key_NULL;
+//    uint8_t res = NRES;
     while(1)
     {
         if (Key_State == Key_MID) {
             break;
-        }
-        //补充：接收到命令返回值处理；接收命令返回值超时处理
+        }   
     }
 }
 
@@ -101,7 +141,7 @@ void Menu_Init(void)
     nowMenu = Circle_Menu();
     
     OLED_Clear();
-    CurrentCursorInit();
+    CursorInit();
 	ShowMenuList();
 }
 
@@ -118,6 +158,7 @@ void Menu_Choose(void)
         }
         else if (Key_State == Key_MID) {
             (*nowMenu->Function)();
+            Key_State = Key_MID;
         }
         if (CurrentCursor.Y == TargetCursor.Y || Key_State == Key_MID)  ShowMenuList();
         MoveCursor(); //光标移动
@@ -216,10 +257,12 @@ static void No_Fun(void)
 
 /***************************  显示部分  ***************************/
 
-static void CurrentCursorInit()
+static void CursorInit()
 {
     CurrentCursor.Width = nowMenu->Width;
     CurrentCursor.Height = nowMenu->Height;
+    TargetCursor.Width = nowMenu->Width;
+    TargetCursor.Height = nowMenu->Height;
 }
 
 //对某一区域取反色
@@ -260,7 +303,7 @@ static void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Heigh
 		OLED_ReverseArea(X+Width-1, Y+5, 1, Height-9);
 		return;
 	}
-	OLED_ReverseArea(X, Y, Width,Height);
+//	OLED_ReverseArea(X, Y, Width, Height);
 	return;
 	
 }
@@ -294,7 +337,7 @@ static void ShowMenuList(void)
         //OLED_ShowStringArea(0,NowY,NowP->Width,NowP->Height,8,NowY,NowP->Name,NowP->FontSize);//无汉字显示
         OLED_ShowMixStringArea(0,NowY,NowP->Width,NowP->Height,8,NowY,NowP->Name,OLED_16X16,NowP->FontSize);//混合显示
         NowP = NowP->next;
-        NowY += 16; 
+        NowY += 16;
     }
     NowP = nowMenu->last;
     NowY = TargetCursor.Y;

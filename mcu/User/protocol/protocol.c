@@ -1,34 +1,40 @@
 #include "protocol.h"
 #include "usart.h"
+#include <string.h>
 
 PacketType Packet;
 
 void SendPacket(PacketType *packet) 
 {
-    uint8_t buffer[2];
-    uint16_t bufferIndex = 0;
+    uint8_t buffer[3];
  
-    buffer[bufferIndex++] = SOF;
-    buffer[bufferIndex++] = packet->cmd0;
-    buffer[bufferIndex++] = EOF;
+    buffer[0] = PSOF;
+    buffer[1] = packet->cmd0;
+    buffer[2] = PEOF;
  
     my_uart1_send(buffer, 3);   //串口发送似乎有问题，发送时最后1字节错误
 }
 
-void ParseCmd(void)
+uint8_t ParseCmd(void)
 {
-    if (Usart2type.UsartRecFlag == 1) {
-        if (Usart2type.UsartDMARecBuffer[0]==SOF) {
-            if (Usart2type.UsartDMARecBuffer[1]==FACEREG) {
-                if (Usart2type.UsartDMARecBuffer[2]==0x01) {
-                    //人脸注册成功
-                } else {
-                    //人脸注册失败
-                }
+    if (Usart1type.UsartRecFlag == 1) {
+        if (Usart1type.UsartRecBuffer[0] == PSOF) {
+            uint8_t res = Usart1type.UsartRecBuffer[2];
+            Usart1type.UsartRecFlag = 0;
+            Usart1type.UsartRecLen = 0;
+            memset(Usart1type.UsartRecBuffer, 0x00, USART1_REC_SIZE);   //可封装成函数
+            if (res == POK) {
+                return POK;
+            } else if (res == PFAIL) {
+                return PFAIL;
+            } else {
+                return PERROR;
             }
-          
+        } else {
+            return PERROR;
         }
-      Usart2type.UsartRecFlag = 0;
+    } else {
+        return NRES;
     }
 }
 

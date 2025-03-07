@@ -45,26 +45,20 @@ def FaceRegistration():
 def FaceRecognition():
     print("FaceRecognition running")
 
-    clock = time.clock()
-    while True:
-        os.exitpoint()
-        clock.tick()
-        img=pl.get_frame()
-        det_boxes,recg_res=frec.run(img)
-        frec.draw_result(pl,det_boxes,recg_res) # 绘制推理结果
+    img=pl.get_frame()
+    det_boxes,recg_res=frec.run(img)
+    frec.draw_result(pl,det_boxes,recg_res) # 绘制推理结果
+    pl.show_image()
+    if (det_boxes and recg_res[0] != 'unknown'):
+        print(det_boxes,recg_res)
+        uart.uart.write(bytes.fromhex('513101'))
+        time.sleep(2)
+        pl.osd_img.clear()
         pl.show_image()
-        if (det_boxes and recg_res[0] != 'unknown'):
-            print(det_boxes,recg_res)
-            uart.uart.write(bytes.fromhex('513101'))
-            time.sleep(2)
-            pl.osd_img.clear()
-            pl.show_image()
-            gc.collect()
-            break
-        else:
-            uart.uart.write(bytes.fromhex('513102'))
         gc.collect()
-#        print(clock.fps())
+    else:
+        uart.uart.write(bytes.fromhex('513102'))
+    gc.collect()
 
 def Ring():
     print("Ring running")

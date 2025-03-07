@@ -346,7 +346,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         }
         memset(Usart1type.UsartDMARecBuffer, 0x00, USART1_DMA_REC_SIZE);
         if (Usart1type.UsartRecLen >= USART1_REC_SIZE)  Usart1type.UsartRecLen = 0;
-        Usart1type.UsartRecFlag = 1;    //‘›Œ¥ π”√
+        if (Usart1type.UsartRecLen) Usart1type.UsartRecFlag = 1;
     }
     if (huart == &huart2) {
         uint16_t temp = 0;

@@ -110,7 +110,6 @@ int main(void)
   while (1)
   {
       Menu_Choose();
-      ParseCmd();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
