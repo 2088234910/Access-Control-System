@@ -3,6 +3,7 @@ from machine import Pin
 from machine import FPIOA
 import key
 import uart
+import audio
 #import sensor
 from media.sensor import *
 import face_registration
@@ -23,7 +24,7 @@ indexes = [int(f.split('_')[1].split('.')[0]) for f in os.listdir(face_save_dir)
 face_index_max = max(indexes) if indexes else 0
 print(f"face_index_max: {face_index_max}")
 
-
+# 人脸注册
 def FaceRegistration():
     global face_index_max
     print("FaceRegistration running")
@@ -42,6 +43,7 @@ def FaceRegistration():
         uart.uart.write(bytes.fromhex('513002'))
     gc.collect()
 
+# 人脸识别
 def FaceRecognition():
     print("FaceRecognition running")
 
@@ -60,8 +62,19 @@ def FaceRecognition():
         uart.uart.write(bytes.fromhex('513102'))
     gc.collect()
 
+#----- audio -----#
+
+# 打铃
 def Ring():
     print("Ring running")
+    uart.uart.write(bytes.fromhex('513301'))
+    audio.play_audio('/data/audio/ring.wav')
+
+# 录音
+def Record():
+    print("Record running")
+    uart.uart.write(bytes.fromhex('513401'))
+    audio.loop_audio(5) #采集音频并输出
 
 #----- protocol -----#
 
@@ -69,12 +82,14 @@ SerialCommands = {
     "FaceRegistration": 0x30,
     "FaceRecognition": 0x31,
     "Ring": 0x33,
+    "Record": 0x34,
 }
 
 command_handlers = {
     SerialCommands["FaceRegistration"]: FaceRegistration,
     SerialCommands["FaceRecognition"]: FaceRecognition,
     SerialCommands["Ring"]: Ring,
+    SerialCommands["Record"]: Record,
 }
 
 #----- main -----#

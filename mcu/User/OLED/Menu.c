@@ -63,13 +63,13 @@ void FaceRegistration()
             OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册失败",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
-            break;   
+            break;
         } else if (res == PERROR) {
             OLED_Clear();
             OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
-            break;   
+            break;
         }   
     }
 }
@@ -99,14 +99,14 @@ void FaceRecognition()
             OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别失败",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
-            break;   
+            break;
         } else if (res == PERROR) {
             OLED_Clear();
             OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
-            break;   
-        }   
+            break;
+        }
     }
 }
 
@@ -116,13 +116,29 @@ void Ring()
     OLED_ShowMixStringArea(0,32,255,16,8,32,"打铃中",OLED_16X16,OLED_8X16);
     OLED_Update();
     COM_Ring();
-    Key_State = Key_NULL;
-//    uint8_t res = NRES;
-    while(1)
-    {
-        if (Key_State == Key_MID) {
-            break;
-        }   
+    HAL_Delay(1000);
+    uint8_t res = ParseCmd();;
+    if (res != POK) {
+        OLED_Clear();
+        OLED_ShowMixStringArea(0,32,255,16,8,32,"打铃失败",OLED_16X16,OLED_8X16);
+        OLED_Update();
+        HAL_Delay(1500);
+    }
+}
+
+void Record()
+{
+    OLED_Clear();
+    OLED_ShowMixStringArea(0,32,255,16,8,32,"录音中",OLED_16X16,OLED_8X16);
+    OLED_Update();
+    COM_Record();
+    HAL_Delay(5000);
+    uint8_t res = ParseCmd();;
+    if (res != POK) {
+        OLED_Clear();
+        OLED_ShowMixStringArea(0,32,255,16,8,32,"录音失败",OLED_16X16,OLED_8X16);
+        OLED_Update();
+        HAL_Delay(1500);
     }
 }
 
@@ -130,7 +146,7 @@ void Menu_Init(void)
 {
     nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*FaceRecognition);
     nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*FaceRegistration);
-    nowMenu = Creat_BrotherMenu("- 铃声",72,16,0,OLED_8X16,*Ring);
+    nowMenu = Creat_BrotherMenu("- 打铃",72,16,0,OLED_8X16,*Ring);
     nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*No_Fun);
     nowMenu = Creat_BrotherMenu("- 设置",72,16,0,OLED_8X16,*MENU_child);
         nowMenu = Creat_ChildMenu("- A",72,16,0,OLED_8X16,*No_Fun);
@@ -458,7 +474,6 @@ static void MoveCursorLinear(void)
 	CurrentCursor = TargetCursor; 
     ReverseCoordinate(TargetCursor.X, TargetCursor.Y, TargetCursor.Width, TargetCursor.Height);
 	OLED_Update();
-     
 }
 
 static void MoveCursorPID(void)
@@ -468,37 +483,37 @@ static void MoveCursorPID(void)
     if(CurrentCursor.X==TargetCursor.X && CurrentCursor.Y==TargetCursor.Y && CurrentCursor.Width==TargetCursor.Width && CurrentCursor.Height==TargetCursor.Height){
 		return;
 	}
-	
+
 	// 默认PID控制参数,速度中等
     float Kp_x = 0.4;  // 比例系数 X
     float Kd_x = 0.2;  // 导数系数 X
     float Ki_x = 0.1;  // 积分系数 X
-          
+
     float Kp_y = 0.5;  // 比例系数 Y
     float Kd_y = 0.0;  // 导数系数 Y
     float Ki_y = 0.1;  // 积分系数 Y
-          
+
     float Kp_w = 0.4;  // 比例系数 Width
     float Kd_w = 0.2;  // 导数系数 Width
     float Ki_w = 0.1;  // 积分系数 Width
-          
+
     float Kp_h = 0.4;  // 比例系数 Height
     float Kd_h = 0.2;  // 导数系数 Height
     float Ki_h = 0.1;  // 积分系数 Height
-	
+
 	if(Style.Speed==0) {//慢速
 		Kp_x = 0.4;  // 比例系数 X
 		Kd_x = 0.3;  // 导数系数 X
 		Ki_x = 0.1;  // 积分系数 X
-		
+
 		Kp_y = 0.3;  // 比例系数 Y
 		Kd_y = 0.2;  // 导数系数 Y
 		Ki_y = 0.05;  // 积分系数 Y
-		
+
 		Kp_w = 0.4;  // 比例系数 Width
 		Kd_w = 0.2;  // 导数系数 Width
 		Ki_w = 0.1;  // 积分系数 Width
-		
+
 		Kp_h = 0.4;  // 比例系数 Height
 		Kd_h = 0.2;  // 导数系数 Height
 		Ki_h = 0.1;  // 积分系数 Height
@@ -507,15 +522,15 @@ static void MoveCursorPID(void)
 		Kp_x = 0.4;  // 比例系数 X
 		Kd_x = 0.2;  // 导数系数 X
 		Ki_x = 0.1;  // 积分系数 X
-		
+
 		Kp_y = 0.5;  // 比例系数 Y
 		Kd_y = 0.0;  // 导数系数 Y
 		Ki_y = 0.1;  // 积分系数 Y
-		
+
 		Kp_w = 0.5;  // 比例系数 Width
 		Kd_w = 0.2;  // 导数系数 Width
 		Ki_w = 0.1;  // 积分系数 Width
-		
+
 		Kp_h = 0.4;  // 比例系数 Height
 		Kd_h = 0.2;  // 导数系数 Height
 		Ki_h = 0.1;  // 积分系数 Height
@@ -524,22 +539,22 @@ static void MoveCursorPID(void)
 		Kp_x = 0.7;  // 比例系数 X
 		Kd_x = 0.2;  // 导数系数 X
 		Ki_x = 0.3;  // 积分系数 X
-		
+
 		Kp_y = 0.7;  // 比例系数 Y
 		Kd_y = 0.0;  // 导数系数 Y
 		Ki_y = 0.3;  // 积分系数 Y
-		
+
 		Kp_w = 0.8;  // 比例系数 Width
 		Kd_w = 0.2;  // 导数系数 Width
 		Ki_w = 0.2;  // 积分系数 Width
-		
+
 		Kp_h = 0.8;  // 比例系数 Height
 		Kd_h = 0.2;  // 导数系数 Height
 		Ki_h = 0.1;  // 积分系数 Height
 	}
-	
+
 	Coordinate Target_old = TargetCursor;
-	
+
     int steps = max(numabs(TargetCursor.X - CurrentCursor.X),numabs(TargetCursor.Y - CurrentCursor.Y),numabs(TargetCursor.Width - CurrentCursor.Width),numabs(TargetCursor.Height - CurrentCursor.Height))*0.9;  // 定义步数
     float last_error_x = 0, integral_x = 0;
     float last_error_y = 0, integral_y = 0;
@@ -621,7 +636,7 @@ loop:
 	DeltaY = TargetCursor.Y - CurrentCursor.Y;
 	DeltaWidth = TargetCursor.Width - CurrentCursor.Width;
 	DeltaHeight = TargetCursor.Height - CurrentCursor.Height;
-    
+
 	// 计算步数，取最大
     steps=20/speed;
 	if (steps == 0) return; 
@@ -634,22 +649,22 @@ loop:
 	while(1){
 		//在当前光标已经显示的情况下，反转已经显示的光标，使得光标消失
 		ReverseCoordinate(CurrentCursor.X, CurrentCursor.Y, CurrentCursor.Width, CurrentCursor.Height);
-		
+
 		DeltaX = TargetCursor.X - CurrentCursor.X;//目标值与当前值的差值
 		DeltaY = TargetCursor.Y - CurrentCursor.Y;
 		DeltaWidth = TargetCursor.Width - CurrentCursor.Width;
 		DeltaHeight = TargetCursor.Height - CurrentCursor.Height;
-		
+
 		stepX = DeltaX / steps;
 		stepY = DeltaY / steps;
 		width = DeltaWidth / steps;
 		height = DeltaHeight / steps;
-		
+
 		currentx+=stepX;
 		currenty+=stepY;
 		currentwidth+=width;
 		currentheight+=height;
-		
+
 		CurrentCursor.X=currentx;
 		CurrentCursor.Y=currenty;
 		CurrentCursor.Width=currentwidth;
@@ -672,7 +687,6 @@ loop:
 	CurrentCursor = TargetCursor; 
     ReverseCoordinate(TargetCursor.X, TargetCursor.Y, TargetCursor.Width, TargetCursor.Height);
 	OLED_Update();
-     
 }
 static void MoveCursor(void)
 {

@@ -4,7 +4,7 @@
 
 PacketType Packet;
 
-void SendPacket(PacketType *packet) 
+void SendPacket(PacketType *packet)
 {
     uint8_t buffer[3];
  
@@ -59,5 +59,12 @@ void COM_FaceAlarm(void)
 void COM_Ring(void)
 {
 	Packet.cmd0 = RING;
-    SendPacket(&Packet);	
+    SendPacket(&Packet);
 }
+
+void COM_Record(void)
+{
+	Packet.cmd0 = RECORD;
+    SendPacket(&Packet);
+}
+

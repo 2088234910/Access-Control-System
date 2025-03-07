@@ -13,8 +13,9 @@
 
 #define FACEREG     0x30
 #define FACERCO     0x31
-#define FACEALARM   0x32
+#define FACEALARM   0x32    //‘›Œ¥ µœ÷
 #define RING        0x33
+#define RECORD      0x34
 
 typedef struct
 {
@@ -32,6 +33,7 @@ void COM_FaceRegistration(void);
 void COM_FaceRecognition(void);
 void COM_FaceAlarm(void);
 void COM_Ring(void);
+void COM_Record(void);
 
 #endif
 
