@@ -37,19 +37,17 @@ int contains_substring(const uint8_t *main_string, const char *substring) {
  */
 int Esp_Cmd(const char *str, const char *res)
 {
-    memset(Usart2type.UsartRecBuffer, 0, USART_REC_SIZE); // 清空接收缓冲区
-    Usart2type.UsartRecLen = 0;
+    my_uart_receive_clean(&Usart2type);
 
     uint8_t RetryTimes = 0;
     while (RetryTimes <= 7)
     {
-        my_uart2_send_variable((uint8_t *)str);
+        my_uart_send_variable(&Usart2type, (uint8_t *)str);
         HAL_Delay(300); // 等待响应
         if(contains_substring(Usart2type.UsartRecBuffer, res) == 1) {
             return 0;
         }
-        memset(Usart2type.UsartRecBuffer, 0, USART_REC_SIZE); // 清空接收缓冲区
-        Usart2type.UsartRecLen = 0;
+        my_uart_receive_clean(&Usart2type);
         RetryTimes++;
     }
 	return 1;

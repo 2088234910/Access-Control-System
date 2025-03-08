@@ -60,10 +60,9 @@ void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 void my_uart_init(void);
-void my_uart1_send(uint8_t *tdata,uint16_t tnum);
-void my_uart1_send_variable(uint8_t *tdata);
-void my_uart2_send(uint8_t *tdata,uint16_t tnum);
-void my_uart2_send_variable(uint8_t *tdata);
+void my_uart_send(UsartType *Usart, uint8_t *tdata,uint16_t tnum);
+void my_uart_send_variable(UsartType *Usart, uint8_t *tdata);
+void my_uart_receive_clean(UsartType *Usart);
 
 /* USER CODE END Prototypes */
 

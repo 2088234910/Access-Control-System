@@ -293,35 +293,44 @@ void my_uart_init()
     HAL_UART_Receive_DMA(&huart2, Usart2type.UsartDMARecBuffer, USART_DMA_REC_SIZE);
 }
 
-void my_uart1_send(uint8_t *tdata,uint16_t tnum)
+void my_uart_send(UsartType *Usart, uint8_t *tdata,uint16_t tnum)
 {
-    while(HAL_DMA_GetState(&hdma_usart1_tx) != HAL_DMA_STATE_READY);
-    __HAL_DMA_DISABLE(&hdma_usart1_tx);
-    HAL_UART_Transmit_DMA(&huart1, tdata, tnum);
-}
-
-void my_uart1_send_variable(uint8_t *tdata)
-{
-    while(*tdata != '\0') 
-    {
-        HAL_UART_Transmit(&huart1, tdata, 1, 0xffff);
-        tdata++;
+    if (Usart == &Usart1type) {
+        while(HAL_DMA_GetState(&hdma_usart1_tx) != HAL_DMA_STATE_READY);
+        __HAL_DMA_DISABLE(&hdma_usart1_tx);
+        HAL_UART_Transmit_DMA(&huart1, tdata, tnum);
+    } else if (Usart == &Usart2type) {
+        while(HAL_DMA_GetState(&hdma_usart2_tx) != HAL_DMA_STATE_READY);
+        __HAL_DMA_DISABLE(&hdma_usart2_tx);
+        HAL_UART_Transmit_DMA(&huart2, tdata, tnum);
     }
 }
 
-void my_uart2_send(uint8_t *tdata,uint16_t tnum)
+void my_uart_receive_clean(UsartType *Usart)
 {
-    while(HAL_DMA_GetState(&hdma_usart2_tx) != HAL_DMA_STATE_READY);
-    __HAL_DMA_DISABLE(&hdma_usart2_tx);
-    HAL_UART_Transmit_DMA(&huart2, tdata, tnum);
+    if (Usart == &Usart1type) {
+        Usart1type.UsartRecLen = 0;
+        memset(Usart1type.UsartRecBuffer, 0x00, USART_REC_SIZE);
+    } else if (Usart == &Usart2type) {
+        Usart2type.UsartRecLen = 0;
+        memset(Usart2type.UsartRecBuffer, 0x00, USART_REC_SIZE);
+    }
 }
 
-void my_uart2_send_variable(uint8_t *tdata)
+void my_uart_send_variable(UsartType *Usart, uint8_t *tdata)
 {
-    while(*tdata != '\0') 
-    {
-        HAL_UART_Transmit(&huart2, tdata, 1, 0xffff);
-        tdata++;
+    if (Usart == &Usart1type) {
+        while(*tdata != '\0') 
+        {
+            HAL_UART_Transmit(&huart1, tdata, 1, 0xffff);
+            tdata++;
+        }
+    } else if (Usart == &Usart2type) {
+        while(*tdata != '\0') 
+        {
+            HAL_UART_Transmit(&huart2, tdata, 1, 0xffff);
+            tdata++;
+        }
     }
 }
 
