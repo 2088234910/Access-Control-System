@@ -22,7 +22,7 @@ uint8_t ParseCmd(void)
             uint8_t res = Usart1type.UsartRecBuffer[2];
             Usart1type.UsartRecFlag = 0;
             Usart1type.UsartRecLen = 0;
-            memset(Usart1type.UsartRecBuffer, 0x00, USART1_REC_SIZE);   //可封装成函数
+            memset(Usart1type.UsartRecBuffer, 0x00, USART_REC_SIZE);   //可封装成函数
             if (res == POK) {
                 return POK;
             } else if (res == PFAIL) {

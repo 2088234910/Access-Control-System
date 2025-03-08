@@ -38,18 +38,16 @@ extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
 
-#define USART1_DMA_REC_SIZE 600
-#define USART1_REC_SIZE 1200
-#define USART2_DMA_REC_SIZE 600
-#define USART2_REC_SIZE 1200
+#define USART_DMA_REC_SIZE 600
+#define USART_REC_SIZE 1200
 
 typedef struct
 {
     uint8_t UsartRecFlag;                               // 标志位
     uint16_t UsartRecLen;                               // 接收数据长度
     uint16_t UsartDMARecLEN;                            // DMA 接收长度
-    uint8_t  UsartDMARecBuffer[USART1_DMA_REC_SIZE];    // DMA 接收数组
-    uint8_t  UsartRecBuffer[USART1_REC_SIZE];           // 接收组
+    uint8_t  UsartDMARecBuffer[USART_DMA_REC_SIZE];    // DMA 接收数组
+    uint8_t  UsartRecBuffer[USART_REC_SIZE];           // 接收组
 }UsartType;
 
 extern UsartType Usart1type, Usart2type;

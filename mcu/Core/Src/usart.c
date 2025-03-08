@@ -284,42 +284,40 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 void my_uart_init()
 {
-    __HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&huart1,UART_IT_IDLE);
     __HAL_UART_CLEAR_IDLEFLAG(&huart1);
-    HAL_UART_Receive_DMA(&huart1, Usart1type.UsartDMARecBuffer, USART1_DMA_REC_SIZE);
+    HAL_UART_Receive_DMA(&huart1, Usart1type.UsartDMARecBuffer, USART_DMA_REC_SIZE);
     
-    __HAL_UART_ENABLE_IT(&huart2,UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&huart2,UART_IT_IDLE);
     __HAL_UART_CLEAR_IDLEFLAG(&huart2);
-    HAL_UART_Receive_DMA(&huart2, Usart2type.UsartDMARecBuffer, USART2_DMA_REC_SIZE);
+    HAL_UART_Receive_DMA(&huart2, Usart2type.UsartDMARecBuffer, USART_DMA_REC_SIZE);
 }
 
 void my_uart1_send(uint8_t *tdata,uint16_t tnum)
 {
-    while(HAL_DMA_GetState(&hdma_usart1_tx) == HAL_DMA_STATE_BUSY) HAL_Delay(1);
+    while(HAL_DMA_GetState(&hdma_usart1_tx) != HAL_DMA_STATE_READY);
+    __HAL_DMA_DISABLE(&hdma_usart1_tx);
     HAL_UART_Transmit_DMA(&huart1, tdata, tnum);
 }
 
 void my_uart1_send_variable(uint8_t *tdata)
 {
-    while(HAL_DMA_GetState(&hdma_usart1_tx) == HAL_DMA_STATE_BUSY) HAL_Delay(1);
     while(*tdata != '\0') 
     {
-        HAL_UART_Transmit(&huart1,tdata, 1, 0xffff);
+        HAL_UART_Transmit(&huart1, tdata, 1, 0xffff);
         tdata++;
     }
 }
 
 void my_uart2_send(uint8_t *tdata,uint16_t tnum)
 {
-    while(HAL_DMA_GetState(&hdma_usart2_tx) == HAL_DMA_STATE_BUSY) HAL_Delay(1);
+    while(HAL_DMA_GetState(&hdma_usart2_tx) != HAL_DMA_STATE_READY);
+    __HAL_DMA_DISABLE(&hdma_usart2_tx);
     HAL_UART_Transmit_DMA(&huart2, tdata, tnum);
 }
 
 void my_uart2_send_variable(uint8_t *tdata)
 {
-    while(HAL_DMA_GetState(&hdma_usart2_tx) == HAL_DMA_STATE_BUSY) HAL_Delay(1);
     while(*tdata != '\0') 
     {
         HAL_UART_Transmit(&huart2, tdata, 1, 0xffff);
@@ -336,7 +334,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         temp = huart1.Instance->SR;             // 清除SR状态寄存器
         temp = huart1.Instance->DR;             // 清除DR数据寄存器，用来清除中断
         temp = hdma_usart1_rx.Instance->NDTR;   // 获取未传输的数据个数
-        Usart1type.UsartDMARecLEN = USART1_DMA_REC_SIZE - temp;
+        Usart1type.UsartDMARecLEN = USART_DMA_REC_SIZE - temp;
         if (Usart1type.UsartRecLen > 0) {
             memcpy(&Usart1type.UsartRecBuffer[Usart1type.UsartRecLen], Usart1type.UsartDMARecBuffer, Usart1type.UsartDMARecLEN);
             Usart1type.UsartRecLen += Usart1type.UsartDMARecLEN;
@@ -344,8 +342,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             memcpy(&Usart1type.UsartRecBuffer, Usart1type.UsartDMARecBuffer, Usart1type.UsartDMARecLEN);
             Usart1type.UsartRecLen += Usart1type.UsartDMARecLEN;
         }
-        memset(Usart1type.UsartDMARecBuffer, 0x00, USART1_DMA_REC_SIZE);
-        if (Usart1type.UsartRecLen >= USART1_REC_SIZE)  Usart1type.UsartRecLen = 0;
+        memset(Usart1type.UsartDMARecBuffer, 0x00, USART_DMA_REC_SIZE);
+        if (Usart1type.UsartRecLen >= USART_REC_SIZE)  Usart1type.UsartRecLen = 0;
         if (Usart1type.UsartRecLen) Usart1type.UsartRecFlag = 1;
     }
     if (huart == &huart2) {
@@ -355,7 +353,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         temp = huart2.Instance->SR;
         temp = huart2.Instance->DR;
         temp = hdma_usart2_rx.Instance->NDTR;
-        Usart2type.UsartDMARecLEN = USART2_DMA_REC_SIZE - temp;
+        Usart2type.UsartDMARecLEN = USART_DMA_REC_SIZE - temp;
         if (Usart2type.UsartRecLen > 0) {
             memcpy(&Usart2type.UsartRecBuffer[Usart2type.UsartRecLen], Usart2type.UsartDMARecBuffer, Usart2type.UsartDMARecLEN);
             Usart2type.UsartRecLen += Usart2type.UsartDMARecLEN;
@@ -363,8 +361,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             memcpy(&Usart2type.UsartRecBuffer, Usart2type.UsartDMARecBuffer, Usart2type.UsartDMARecLEN);
             Usart2type.UsartRecLen += Usart2type.UsartDMARecLEN;
         }
-        memset(Usart2type.UsartDMARecBuffer, 0x00, USART2_DMA_REC_SIZE);
-        if (Usart2type.UsartRecLen >= USART2_REC_SIZE)  Usart2type.UsartRecLen = 0;
+        memset(Usart2type.UsartDMARecBuffer, 0x00, USART_DMA_REC_SIZE);
+        if (Usart2type.UsartRecLen >= USART_REC_SIZE)  Usart2type.UsartRecLen = 0;
         Usart2type.UsartRecFlag = 1;    //暂未使用
     }
 }
