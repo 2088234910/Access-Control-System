@@ -5,7 +5,7 @@
   *
   * @author         :  ljc
   *
-  * @date           :  2025.2.24
+  * @date           :  2025.3.9
   *
   * @platform       :  STM32F407VET6
   ******************************************************************************
@@ -23,8 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "oled.h"
-#include "menu.h"
+#include "Menu_app.h"
 #include "Esp8266.h"
 #include "protocol.h"
 /* USER CODE END Includes */
@@ -99,14 +98,13 @@ int main(void)
   /* USER CODE BEGIN 2 */
   my_uart_init();
   Esp_Init();
-  OLED_Init();
   SD_load();
   Menu_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //加入加载完成标识
+  //加入加载完成标识，如屏幕显示开机logo，等待确认后进入
   while (1)
   {
       Menu_Choose();

@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include "Menu.h"
 #include "OLED.h"
-#include "Key.h"
-#include "protocol.h"
 
 MENU* nowMenu = NULL;
 
@@ -18,173 +16,16 @@ CoordinateStyle Style = {   //光标样式
 
 /***************************  static函数申明  ***************************/
 
-static MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
-static MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
-static MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
-static MENU* Circle_Menu(void);
-static void MENU_child(void);
-static void MENU_parent(void);
-static void No_Fun(void);
 static uint16_t numabs(int16_t num);
 static int16_t max(int16_t a, int16_t b, int16_t c, int16_t d);
-static void CursorInit(void);
 static void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
-static void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style);
-static void ShowMenuList(void);
-static void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
 static void MoveCursorLinear(void);
 static void MoveCursorPID(void);
 static void MoveCursorUnLinear(void);
-static void MoveCursor(void);
 
-/***************************  User部分  ***************************/
-void FaceRegistration()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_FaceRegistration();
-    Key_State = Key_NULL;
-    uint8_t res = NRES;
-    while(1)
-    {
-        if (Key_State == Key_MID) {
-            break;
-        }
-        res = ParseCmd();
-        if (res == POK) {
-            OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册成功",OLED_16X16,OLED_8X16);
-            OLED_Update();
-            HAL_Delay(1500);
-            break;
-        } else if (res == PFAIL) {
-            OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册失败",OLED_16X16,OLED_8X16);
-            OLED_Update();
-            HAL_Delay(1500);
-            break;
-        } else if (res == PERROR) {
-            OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
-            OLED_Update();
-            HAL_Delay(1500);
-            break;
-        }   
-    }
-}
+/***************************  linked-list部分  ***************************/
 
-void FaceRecognition()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_FaceRecognition();
-    Key_State = Key_NULL;
-    uint8_t res = NRES;
-    while(1)
-    {
-        if (Key_State == Key_MID) {
-            break;
-        }
-        res = ParseCmd();
-        if (res == POK) {
-            OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别成功",OLED_16X16,OLED_8X16);
-            OLED_Update();
-            HAL_Delay(1500);
-            break;
-        } else if (res == PFAIL) {
-            OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别失败",OLED_16X16,OLED_8X16);
-            OLED_Update();
-            HAL_Delay(1500);
-            break;
-        } else if (res == PERROR) {
-            OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
-            OLED_Update();
-            HAL_Delay(1500);
-            break;
-        }
-    }
-}
-
-void Ring()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"打铃中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_Ring();
-    HAL_Delay(1000);
-    uint8_t res = ParseCmd();;
-    if (res != POK) {
-        OLED_Clear();
-        OLED_ShowMixStringArea(0,32,255,16,8,32,"打铃失败",OLED_16X16,OLED_8X16);
-        OLED_Update();
-        HAL_Delay(1500);
-    }
-}
-
-void Record()
-{
-    OLED_Clear();
-    OLED_ShowMixStringArea(0,32,255,16,8,32,"录音中",OLED_16X16,OLED_8X16);
-    OLED_Update();
-    COM_Record();
-    HAL_Delay(5000);
-    uint8_t res = ParseCmd();;
-    if (res != POK) {
-        OLED_Clear();
-        OLED_ShowMixStringArea(0,32,255,16,8,32,"录音失败",OLED_16X16,OLED_8X16);
-        OLED_Update();
-        HAL_Delay(1500);
-    }
-}
-
-void Menu_Init(void)
-{
-    nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*FaceRecognition);
-    nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*FaceRegistration);
-    nowMenu = Creat_BrotherMenu("- 打铃",72,16,0,OLED_8X16,*Ring);
-    nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*No_Fun);
-    nowMenu = Creat_BrotherMenu("- 设置",72,16,0,OLED_8X16,*MENU_child);
-        nowMenu = Creat_ChildMenu("- A",72,16,0,OLED_8X16,*No_Fun);
-        nowMenu = Creat_BrotherMenu("- B",72,16,0,OLED_8X16,*No_Fun);
-        nowMenu = Creat_BrotherMenu("- C",72,16,0,OLED_8X16,*No_Fun);
-        nowMenu = Creat_BrotherMenu("- <<<",72,16,0,OLED_8X16,*MENU_parent);
-        nowMenu = Circle_Menu();
-    nowMenu = Circle_Menu();
-    
-    OLED_Clear();
-    CursorInit();
-	ShowMenuList();
-}
-
-void Menu_Choose(void)
-{
-    if(Key_State != Key_NULL) {
-        if (Key_State == Key_UP) {
-            nowMenu = nowMenu->last;
-            ChangeTargetCursor(0,CurrentCursor.Y-nowMenu->Height,nowMenu->Width,nowMenu->Height);
-        }
-        else if (Key_State == Key_DOWN) {
-            nowMenu = nowMenu->next;
-            ChangeTargetCursor(0,CurrentCursor.Y+CurrentCursor.Height,nowMenu->Width,nowMenu->Height);
-        }
-        else if (Key_State == Key_MID) {
-            (*nowMenu->Function)();
-            Key_State = Key_MID;
-        }
-        if (CurrentCursor.Y == TargetCursor.Y || Key_State == Key_MID)  ShowMenuList();
-        MoveCursor(); //光标移动
-        Key_State = Key_NULL;
-    }
-}
-
-/***************************  生成部分  ***************************/
-
-static MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
+MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
 {
     MENU* node = malloc(sizeof(MENU));
     strcpy(node->Name, Name);  
@@ -202,7 +43,7 @@ static MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,ui
     return node;
 }
 
-static MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
+MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
 {
     MENU* node = malloc(sizeof(MENU));
     strcpy(node->Name, Name);  
@@ -222,7 +63,7 @@ static MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t F
     return node;
 }
 
-static MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
+MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)())
 {
     MENU* node = malloc(sizeof(MENU));
     strcpy(node->Name, Name);  
@@ -242,7 +83,7 @@ static MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Fra
     return node;
 }
 
-static MENU* Circle_Menu(void)
+MENU* Circle_Menu(void)
 {
     MENU* finalMenu = nowMenu;
     while(nowMenu->last != NULL)
@@ -255,25 +96,25 @@ static MENU* Circle_Menu(void)
     return nowMenu->parent;
 }
 
-static void MENU_child(void)
+void MENU_child(void)
 {
     nowMenu = nowMenu->child;
     ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
 }
 
-static void MENU_parent(void)
+void MENU_parent(void)
 {
     nowMenu = nowMenu->parent;
     ChangeTargetCursor(0,0,nowMenu->Width,nowMenu->Height);
 }
-static void No_Fun(void)
+void No_Fun(void)
 {
     
 }
 
-/***************************  显示部分  ***************************/
+/***************************  Driver display部分  ***************************/
 
-static void CursorInit()
+void CursorInit()
 {
     CurrentCursor.Width = nowMenu->Width;
     CurrentCursor.Height = nowMenu->Height;
@@ -324,7 +165,7 @@ static void ReverseCoordinate(int16_t X, int16_t Y, uint8_t Width, uint8_t Heigh
 	
 }
 //画出菜单外框
-static void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style)
+void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style)
 {
 	if(Style==0){return;}
 	if(Style==1){
@@ -343,7 +184,7 @@ static void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t S
 }
 
 //打印菜单列表
-static void ShowMenuList(void)
+void ShowMenuList(void)
 {
 	MENU * NowP = nowMenu;
     int16_t NowY = TargetCursor.Y;
@@ -368,35 +209,24 @@ static void ShowMenuList(void)
     OLED_Update();
 }
 
-/***************************  移动部分  ***************************/
-
-//改变目标光标位置与大小
-static void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
-{
-	if (Y<0)  Y = 0;    // 
-    if (Y>48) Y = 48;   // 64-16
-    TargetCursor.X=X;
-	TargetCursor.Y=Y;
-	TargetCursor.Width=Width;
-	TargetCursor.Height=Height; 
-}
+/***************************  Driver cursor部分  ***************************/
 
 //取最大值函数
 static int16_t max(int16_t a, int16_t b, int16_t c, int16_t d)
 {
-    int16_t max_val = a; // 假设a是最大的
+    int16_t max_val = a;
 
     if (b > max_val) {
-        max_val = b; // 如果b大于当前最大值，则更新最大值为b
+        max_val = b;
     }
     if (c > max_val) {
-        max_val = c; // 如果c大于当前最大值，则更新最大值为c
+        max_val = c;
     }
     if (d > max_val) {
-        max_val = d; // 如果d大于当前最大值，则更新最大值为d
+        max_val = d;
     }
     
-    return max_val; // 返回最大值
+    return max_val;
 }
 //取绝对值函数
 static uint16_t numabs(int16_t num)
@@ -406,6 +236,33 @@ static uint16_t numabs(int16_t num)
 	if(num<0)
 		return -num;
 	return 0;
+}
+
+//改变目标光标位置与大小
+void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
+{
+	if (Y<0)  Y = 0;    // 
+    if (Y>48) Y = 48;   // 64-16
+    TargetCursor.X=X;
+	TargetCursor.Y=Y;
+	TargetCursor.Width=Width;
+	TargetCursor.Height=Height; 
+}
+
+void MoveCursor(void)
+{
+	if(Style.Move==0){
+		MoveCursorLinear();
+		return;
+	}
+	if(Style.Move==1){
+		MoveCursorPID();
+		return;
+	}
+	if(Style.Move==2){
+		MoveCursorUnLinear();
+		return;
+	}
 }
 
 static void MoveCursorLinear(void)
@@ -688,19 +545,3 @@ loop:
     ReverseCoordinate(TargetCursor.X, TargetCursor.Y, TargetCursor.Width, TargetCursor.Height);
 	OLED_Update();
 }
-static void MoveCursor(void)
-{
-	if(Style.Move==0){
-		MoveCursorLinear();
-		return;
-	}
-	if(Style.Move==1){
-		MoveCursorPID();
-		return;
-	}
-	if(Style.Move==2){
-		MoveCursorUnLinear();
-		return;
-	}
-}
-

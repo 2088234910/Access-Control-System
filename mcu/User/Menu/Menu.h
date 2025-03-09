@@ -31,7 +31,21 @@ typedef struct Menu{
     struct Menu* child;
 }MENU;
 
-void Menu_Init(void);
-void Menu_Choose(void);
+extern MENU* nowMenu;
+extern Coordinate CurrentCursor;
+extern Coordinate TargetCursor;
+
+void CursorInit(void);
+void ShowMenuList(void);
+void DrawFrame(uint8_t X,uint8_t Y,uint8_t Width,uint8_t Height,uint8_t Style);
+void ChangeTargetCursor(int16_t X, int16_t Y, uint8_t Width, uint8_t Height);
+void MoveCursor(void);
+MENU* Creat_Menu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
+MENU* Creat_BrotherMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
+MENU* Creat_ChildMenu(char* Name,int16_t Width,int16_t Height,int16_t Frame,uint8_t FontSize,void(* Function)());
+MENU* Circle_Menu(void);
+void MENU_child(void);
+void MENU_parent(void);
+void No_Fun(void);
 
 #endif

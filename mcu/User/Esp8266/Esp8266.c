@@ -11,7 +11,6 @@
  *   - 1: 找到子字符串,且子字符串非空
  *   - 0: 未找到子字符串、子字符串为空，或输入参数为NULL
  * @note 
- *   - 若 `substring` 为空字符串（`""`），函数将返回 0（因为空字符串无实际匹配意义）。
  *   - 函数内部会检查参数合法性，避免空指针导致的未定义行为。
  */
 int contains_substring(const uint8_t *main_string, const char *substring) {
