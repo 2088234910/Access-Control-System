@@ -4,6 +4,7 @@
 #include "OLED.h"
 #include "Key.h"
 #include "protocol.h"
+#include "Esp8266.h"
 
 void FaceRegistration()
 {
@@ -27,7 +28,7 @@ void FaceRegistration()
             break;
         } else if (res == PFAIL) {
             OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸注册失败",OLED_16X16,OLED_8X16);
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"未检测到人脸",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
             break;
@@ -59,17 +60,24 @@ void FaceRecognition()
             OLED_Clear();
             OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别成功",OLED_16X16,OLED_8X16);
             OLED_Update();
+            Esp_Door_Open();
             HAL_Delay(1500);
             break;
         } else if (res == PFAIL) {
             OLED_Clear();
-            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别失败",OLED_16X16,OLED_8X16);
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"未检测到人脸",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
             break;
         } else if (res == PERROR) {
             OLED_Clear();
             OLED_ShowMixStringArea(0,32,255,16,8,32,"发生错误",OLED_16X16,OLED_8X16);
+            OLED_Update();
+            HAL_Delay(1500);
+            break;
+        } else if (res == 0x03) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"检测到陌生人！",OLED_16X16,OLED_8X16);
             OLED_Update();
             HAL_Delay(1500);
             break;
@@ -109,12 +117,18 @@ void Record()
     }
 }
 
+void Door_close()
+{
+    Esp_Door_Close();
+}
+
 void Menu_Init(void)
 {
     nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*FaceRecognition);
     nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*FaceRegistration);
     nowMenu = Creat_BrotherMenu("- 打铃",72,16,0,OLED_8X16,*Ring);
     nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 模拟关门",108,16,0,OLED_8X16,*Door_close);
     nowMenu = Creat_BrotherMenu("- 设置",72,16,0,OLED_8X16,*MENU_child);
         nowMenu = Creat_ChildMenu("- A",72,16,0,OLED_8X16,*No_Fun);
         nowMenu = Creat_BrotherMenu("- B",72,16,0,OLED_8X16,*No_Fun);

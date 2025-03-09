@@ -38,9 +38,9 @@ def FaceRegistration():
         img = pl.sensor.snapshot(chn=CAM_CHN_ID_1)
         img.save(face_save_dir+file_name)
         face_index_max += 1
-        uart.uart.write(bytes.fromhex('513001'))
+        uart.uart.write(bytes.fromhex('513001'))    # 注册成功
     else:
-        uart.uart.write(bytes.fromhex('513002'))
+        uart.uart.write(bytes.fromhex('513002'))    # 注册失败
     gc.collect()
 
 # 人脸识别
@@ -51,15 +51,17 @@ def FaceRecognition():
     det_boxes,recg_res=frec.run(img)
     frec.draw_result(pl,det_boxes,recg_res) # 绘制推理结果
     pl.show_image()
-    if (det_boxes and recg_res[0] != 'unknown'):
+    if det_boxes:
         print(det_boxes,recg_res)
-        uart.uart.write(bytes.fromhex('513101'))
-        time.sleep(2)
-        pl.osd_img.clear()
-        pl.show_image()
-        gc.collect()
-    else:
-        uart.uart.write(bytes.fromhex('513102'))
+        if recg_res[0] == 'stranger':
+            uart.uart.write(bytes.fromhex('513103'))    # 陌生人
+        if recg_res[0] != 'unknown':
+            uart.uart.write(bytes.fromhex('513101'))    # 识别成功
+            time.sleep(2)
+            pl.osd_img.clear()
+            pl.show_image()
+    else :
+        uart.uart.write(bytes.fromhex('513102'))    # 未检测到人脸
     gc.collect()
 
 #----- audio -----#
@@ -81,8 +83,8 @@ def Record():
 SerialCommands = {
     "FaceRegistration": 0x30,
     "FaceRecognition": 0x31,
-    "Ring": 0x33,
-    "Record": 0x34,
+    "Ring": 0x32,
+    "Record": 0x33,
 }
 
 command_handlers = {

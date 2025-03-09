@@ -27,7 +27,7 @@ uint8_t ParseCmd(void)
             } else if (res == PFAIL) {
                 return PFAIL;
             } else {
-                return PERROR;
+                return res;
             }
         } else {
             return PERROR;
@@ -46,12 +46,6 @@ void COM_FaceRegistration(void)
 void COM_FaceRecognition(void)
 {
 	Packet.cmd0 = FACERCO;
-    SendPacket(&Packet);
-}
-
-void COM_FaceAlarm(void)
-{
-	Packet.cmd0 = FACEALARM;
     SendPacket(&Packet);
 }
 

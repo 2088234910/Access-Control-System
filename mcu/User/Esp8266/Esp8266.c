@@ -59,6 +59,7 @@ int Esp_Cmd(const char *str, const char *res)
  */
 char Esp_Init(void)
 {
+    //注意指令结尾加上\r\n !!!
     uint8_t ret = 0;
 
 	/* 1.复位指令 */
@@ -87,48 +88,75 @@ char Esp_Init(void)
     if (ret) return 1;
 
 	/* 7.订阅主题 */
-	//Esp_Cmd("AT+MQTTSUB=0,\"$sys/0S43la9qNI/LED/thing/property/post/reply\",1", "OK");
-	//Esp_Cmd("AT+MQTTSUB=0,\"$sys/0S43la9qNI/LED/thing/property/post/set_reply\",1", "OK");
-	//Esp_Cmd("AT+MQTTSUB=0,\"$sys/0S43la9qNI/LED/thing/property/set\",1", "OK");
+	ret = Esp_Cmd("AT+MQTTSUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post/reply\",1\r\n", "OK");
+    if (ret) return 1;
+	ret = Esp_Cmd("AT+MQTTSUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post/set_reply\",1\r\n", "OK");
+    if (ret) return 1;
+	ret = Esp_Cmd("AT+MQTTSUB=0,\"$sys/YBUi5NO4ng/door/thing/property/set\",1\r\n", "OK");
+    if (ret) return 1;
 
 	/* 8.发布消息 */
-
     //设定门状态初始值
-	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"open_flag\\\":{\\\"value\\\":0\\}}}\",0,0\r\n", "OK");
+	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"door_flag\\\":{\\\"value\\\":false\\}}}\",0,0\r\n", "OK");
     if (ret) return 1;
     //陌生人测试
 //	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"12\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.25\\,\\\"Text\\\":\\\"moshengren\\\"}}}}\",0,0\r\n", "OK");
-//    if (ret) return 1;
-
+    
+    my_uart_receive_clean(&Usart2type);
+    
 	return 0;
 }
 
 
 /**
- * @brief 检查接收到的数据中是否包含特定的设备和属性。
+ * @brief 检查接收到的数据中是否包含指定的字符串。
  *
- * @param res1 设备名或关键字，用于识别设备。
- * @param res2 属性值，用于识别设备的属性状态。
- * @return int 如果接收到的数据中包含指定的设备和属性，则返回1，否则返回0。
+ * @param res1 指定的字符串。
+ * @param res2 指定的字符串。
+ * @return int 如果接收到的数据中包含指定的字符串，则返回1，否则返回0。
  */
-int Esp_Get(const char *res1, const char *res2)
+static int Esp_Get(const char *res1, const char *res2)
 {
 	// 示例接收数据格式："+MQTTSUBRECV:0,\"$sys/0S43la9qNI/LED/thing/property/set\",58,{\"id\":\"58\",\"version\":\"1.0\",\"params\":{\"LightSwitch\":false}}"
 
-	/* 检查接收缓冲区中是否包含指定的设备名或关键字 */
 	if (contains_substring(Usart2type.UsartRecBuffer, res1) == 1) {
-		/* 如果包含设备名，再检查是否包含指定的属性值 */
 		if (contains_substring(Usart2type.UsartRecBuffer, res2) == 1) {
-			return 1; // 找到匹配的设备和属性
+			return 1;
 		}
 	}
-	return 0; // 未找到匹配的设备和属性
+	return 0;
 }
 
-
-void Esp_Get_Data(void)
+void Esp_Set_Reply()
 {
-	//功能函数
-	
+    if (Usart2type.UsartRecFlag == 1) {
+        if (Esp_Get("/property/set", "door_flag")) {
+            //Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/set_reply\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"code\\\":200\\,\\\"msg\\\":\\\"hello\\\"}\",0,0\r\n", "OK");
+            //此处id号需改为命令下发时对应的id号，实现过于麻烦，暂时放弃
+            Esp_Door_Open();
+        }
+        my_uart_receive_clean(&Usart2type);
+    }
 }
 
+uint8_t Esp_Door_Open()
+{
+    uint8_t ret = 0;
+    ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"door_flag\\\":{\\\"value\\\":true\\}}}\",0,0\r\n", "OK");
+    return ret;
+}
+
+uint8_t Esp_Door_Close()
+{
+    uint8_t ret = 0;
+    ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"door_flag\\\":{\\\"value\\\":false\\}}}\",0,0\r\n", "OK");
+    return ret;
+}
+
+uint8_t Esp_Face_Alarm()
+{
+    uint8_t ret = 0;
+    ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"12\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.01\\,\\\"Text\\\":\\\"moshengren\\\"}}}}\",0,0\r\n", "OK");
+//    MatchingRate暂未实现
+    return ret;
+}

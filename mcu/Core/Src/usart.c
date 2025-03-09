@@ -311,9 +311,11 @@ void my_uart_receive_clean(UsartType *Usart)
     if (Usart == &Usart1type) {
         Usart1type.UsartRecLen = 0;
         memset(Usart1type.UsartRecBuffer, 0x00, USART_REC_SIZE);
+        Usart1type.UsartRecFlag = 0;
     } else if (Usart == &Usart2type) {
         Usart2type.UsartRecLen = 0;
         memset(Usart2type.UsartRecBuffer, 0x00, USART_REC_SIZE);
+        Usart2type.UsartRecFlag = 0;
     }
 }
 
@@ -372,7 +374,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         }
         memset(Usart2type.UsartDMARecBuffer, 0x00, USART_DMA_REC_SIZE);
         if (Usart2type.UsartRecLen >= USART_REC_SIZE)  Usart2type.UsartRecLen = 0;
-        Usart2type.UsartRecFlag = 1;    //‘›Œ¥ π”√
+        Usart2type.UsartRecFlag = 1;
     }
 }
 

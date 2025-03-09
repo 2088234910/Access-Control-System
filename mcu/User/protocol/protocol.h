@@ -9,13 +9,12 @@
 #define NRES        0x00
 #define POK         0x01
 #define PFAIL       0x02
-#define PERROR      0x03
+#define PERROR      0xFF
 
 #define FACEREG     0x30
 #define FACERCO     0x31
-#define FACEALARM   0x32    //‘›Œ¥ µœ÷
-#define RING        0x33
-#define RECORD      0x34
+#define RING        0x32
+#define RECORD      0x33
 
 typedef struct
 {
@@ -31,7 +30,6 @@ typedef struct
 uint8_t ParseCmd(void);
 void COM_FaceRegistration(void);
 void COM_FaceRecognition(void);
-void COM_FaceAlarm(void);
 void COM_Ring(void);
 void COM_Record(void);
 

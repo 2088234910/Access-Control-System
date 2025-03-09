@@ -108,6 +108,7 @@ int main(void)
   while (1)
   {
       Menu_Choose();
+      Esp_Set_Reply();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

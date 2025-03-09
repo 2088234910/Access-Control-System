@@ -304,7 +304,7 @@ class FaceRecognition:
                 return 'unknown'
             elif v_score_max < self.face_recognition_threshold:
                 # 小于人脸识别阈值，未识别
-                return 'unknown'
+                return 'stranger'
             else:
                 # 识别成功
                 result = 'name: {}, score:{}'.format(self.db_name[v_id],v_score_max)

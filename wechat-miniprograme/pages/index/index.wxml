@@ -1,6 +1,46 @@
-<!--index.wxml-->
-<view class="container">
-  <button type="primary" bindtap="taphere">helloword</button>
-  <view style="height:10px"></view>
-  <button type="primary" bindtap="open">开门</button>
+<!-- index.wxml -->
+<view class="page-container">
+
+  <!-- 中间数据 -->
+  <view class="data-container">
+    <!-- 数据项：设备状态 -->
+    <view class="data-item device-status">
+      <image src="/图片/设备状态.png" class="data-picture"/>
+      <view class="data-text">
+        <view class="data-title">设备状态</view>
+        <view class="data-value" wx:if="{{device_status.data.list[0].status == 1}}">在线</view>
+        <view class="data-value" wx:elif="{{device_status.data.list[0].status != 1}}" style="color: red;">离线</view>
+      </view>
+    </view>
+
+    <view class="data-item device-status">
+      <image src="/图片/摄像头状态.png" class="data-picture"/>
+      <view class="data-text">
+        <view class="data-title">摄像头状态</view>
+        <view class="data-value" wx:if="{{device_status.data.list[0].status == 1}}">正常</view>
+        <view class="data-value" wx:elif="{{device_status.data.list[0].status != 1}}" style="color: red;">未知</view>
+      </view>
+    </view>
+
+    <!-- 数据项：门状态 -->
+    <view class="data-item environment-temperature">
+      <image src="/图片/门状态.png" class="data-picture"/>
+      <view class="data-text">
+        <view class="data-title">门状态</view>
+        <view class="data-value">{{onenet_data.data[0].description}}</view>
+      </view>
+    </view>
+
+    <!-- 数据项：门开关 -->
+    <view class="data-item curtain-switch">
+      <image src="/图片/开关.png" class="data-picture"/>
+      <view class="data-text">
+        <view class="data-title">门开关</view>
+        <view class="data-value">
+          <switch checked="{{door_flag}}" bindchange="onenet_set_device_property" data-param="door_flag" color="#3d77ff"/>
+        </view>
+      </view>
+    </view>
+    
+  </view>
 </view>
