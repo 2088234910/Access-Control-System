@@ -8,11 +8,11 @@ Page({
    * @注意：定义页面的初始数据结构，包括设备属性值、设备状态、开关状态等。
    */
   data: {
-    onenet_data: [], // 用来存储设备属性值的数组
-    device_status: [], // 用来存储设备状态信息的数组
-    device_event: [], // 用来存储设备事件信息的数组
+    onenet_data: [], // 存储设备属性值
+    device_status: [], // 存储设备状态信息
+    device_event: [], // 存储设备事件信息
     door_flag: false, // 门状态
-    messageList: [],
+    messageList: [],  // 存储设备事件的消息列表
   },
 
   /**
@@ -146,6 +146,7 @@ Page({
           this.setData({
             device_event: res.data,
           });
+          let currentMessageList = [];
           this.data.device_event.data.list.forEach(event => {
             try {
                 const eventValue = JSON.parse(event.value);
@@ -155,13 +156,12 @@ Page({
                   timestamp: timestamp,
                   message: message
                 };
-                const currentMessageList = this.data.messageList;
                 currentMessageList.push(newMessage);
-                this.setData({ messageList: currentMessageList });
             } catch (error) {
                 console.error('解析 event 失败:', error);
             }
           });
+          this.setData({ messageList: currentMessageList });
         } else {
           // 请求成功但code不为0，视为错误，显示错误信息
           console.log("OneNET请求错误，错误信息：", res.data.msg);
@@ -219,62 +219,71 @@ Page({
    * @返回值：无
    */
   onenet_set_device_property(event) {
-    const param_name = event.currentTarget.dataset.param; // 获取自定义数据
-    const is_checked = event.detail.value; // 获取开关状态
-    const { api_base_url, product_id, device_name, auth_info } = this.config;
-    // 显示加载提示框
-    wx.showLoading({
-      title: '正在执行...', // 提示文字
-      mask: true, // 是否显示透明蒙层，防止触摸穿透
-    });
-    wx.request({
-      url: `${api_base_url}/thingmodel/set-device-property`,
-      method: 'POST',
-      header: {
-        'Authorization': auth_info,
-      },
-      data: {
-        "product_id": product_id,
-        "device_name": device_name,
-        "params": {
-          [param_name]: is_checked
-        }
-      },
-      success: (res) => {
-        console.log('OneNET属性设置请求成功，返回数据', res.data); // 打印接收到的数据
-
-        // 隐藏加载提示框
-        wx.hideLoading();
-
-        // 检查响应是否成功
-        if (res.data && res.data.code === 0 && res.data.data && res.data.data.code === 200) {
-          // 显示成功提示框
-          wx.showToast({
-            title: '操作成功', // 提示的文字内容
-            icon: 'success', // 图标类型，使用成功图标
-            duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
-          });
-        } 
-        // else {
+    if (this.data.device_status.data.list[0].status == 1) {
+      const param_name = event.currentTarget.dataset.param; // 获取自定义数据
+      const is_checked = event.detail.value; // 获取开关状态
+      const { api_base_url, product_id, device_name, auth_info } = this.config;
+      // 显示加载提示框
+      wx.showLoading({
+        title: '正在执行...', // 提示文字
+        mask: true, // 是否显示透明蒙层，防止触摸穿透
+      });
+      wx.request({
+        url: `${api_base_url}/thingmodel/set-device-property`,
+        method: 'POST',
+        header: {
+          'Authorization': auth_info,
+        },
+        data: {
+          "product_id": product_id,
+          "device_name": device_name,
+          "params": {
+            [param_name]: is_checked
+          }
+        },
+        success: (res) => {
+          console.log('OneNET属性设置请求成功，返回数据', res.data); // 打印接收到的数据
+  
+          // 隐藏加载提示框
+          wx.hideLoading();
+  
+          // 检查响应是否成功
+          if (res.data && res.data.code === 0 && res.data.data && res.data.data.code === 200) {
+            // 显示成功提示框
+            wx.showToast({
+              title: '操作成功', // 提示的文字内容
+              icon: 'success', // 图标类型，使用成功图标
+              duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
+            });
+          } 
+          // else {
+          //   // 显示失败提示框
+          //   wx.showToast({
+          //     title: res.data.msg || '操作失败', // 提示的文字内容，使用服务器返回的msg信息
+          //     icon: 'none', // 不显示图标
+          //     duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
+          //   });
+          // }
+        },
+        // fail: (err) => {
+        //   console.log('OneNET属性设置请求失败，返回数据：', err); // 打印错误信息
+        //   // 隐藏加载提示框
+        //   wx.hideLoading();
         //   // 显示失败提示框
         //   wx.showToast({
-        //     title: res.data.msg || '操作失败', // 提示的文字内容，使用服务器返回的msg信息
+        //     title: '操作失败', // 提示的文字内容
         //     icon: 'none', // 不显示图标
         //     duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
         //   });
         // }
-      },
-      // fail: (err) => {
-      //   console.log('OneNET属性设置请求失败，返回数据：', err); // 打印错误信息
-      //   // 隐藏加载提示框
-      //   wx.hideLoading();
-      //   // 显示失败提示框
-      //   wx.showToast({
-      //     title: '操作失败', // 提示的文字内容
-      //     icon: 'none', // 不显示图标
-      //     duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
-      //   });
-      // }
-    });
+      });
+    } else {
+      console.log("设备离线");
+      wx.showToast({
+        title: '设备离线', 
+        icon: 'none', // 不显示图标
+        duration: 2000 // 提示框自动隐藏的时间，单位是毫秒
+      });
+    }
   },
 });
