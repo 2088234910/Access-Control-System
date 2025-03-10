@@ -1,6 +1,7 @@
 import time, os, sys
 from machine import Pin
 from machine import FPIOA
+import led
 import key
 import uart
 import audio
@@ -97,7 +98,9 @@ command_handlers = {
 #----- main -----#
 
 def main():
+    led.LED.value(1)
     print("main running")
+    # 增加亮灯，表示程序已正常运行
     while True:
         command = uart.uart.read(3)
         if command is not None and len(command) == 3:

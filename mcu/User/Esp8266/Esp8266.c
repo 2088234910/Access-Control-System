@@ -1,6 +1,7 @@
 #include "usart.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "Esp8266.h"
 
 /**
@@ -100,7 +101,8 @@ char Esp_Init(void)
 	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"door_flag\\\":{\\\"value\\\":false\\}}}\",0,0\r\n", "OK");
     if (ret) return 1;
     //陌生人测试
-//	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"12\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.25\\,\\\"Text\\\":\\\"moshengren\\\"}}}}\",0,0\r\n", "OK");
+	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.01\\,\\\"Text\\\":\\\"Stranger!!!\\\"}}}}\",0,0\r\n", "OK");
+    if (ret) return 1;
     
     my_uart_receive_clean(&Usart2type);
     
@@ -127,13 +129,45 @@ static int Esp_Get(const char *res1, const char *res2)
 	return 0;
 }
 
+static int Esp_ID()
+{
+    const char *id_start = strstr((const char *)Usart2type.UsartRecBuffer, "\"id\":\"");
+    if (id_start) {
+        id_start += strlen("\"id\":\"");    //值的起始位置
+        const char *id_end = strchr(id_start, '\"');    //查找值的结束位置（下一个双引号）
+        if (id_end) {
+            size_t id_length = id_end - id_start;
+            char id_str[32]; // 假设id的最大长度为32
+            strncpy(id_str, id_start, id_length);
+            id_str[id_length] = '\0';
+            char *endptr;
+            int id = (int)strtol(id_str, &endptr, 10);
+            if (*endptr == '\0') {  //字符串转换数值成功
+                return id;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+}
+
 void Esp_Set_Reply()
 {
     if (Usart2type.UsartRecFlag == 1) {
         if (Esp_Get("/property/set", "door_flag")) {
-            //Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/set_reply\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"code\\\":200\\,\\\"msg\\\":\\\"hello\\\"}\",0,0\r\n", "OK");
-            //此处id号需改为命令下发时对应的id号，实现过于麻烦，暂时放弃
-            Esp_Door_Open();
+            char cmd[256] = {0};
+            int id = Esp_ID();
+            if (Esp_Get("door_flag", "true")) {
+                Esp_Door_Open();
+            } else if (Esp_Get("door_flag", "false")) {
+                Esp_Door_Close();
+            }
+            snprintf(cmd, 256, "AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/set_reply\",\"{\\\"id\\\":\\\"%d\\\"\\,\\\"code\\\":200\\,\\\"msg\\\":\\\"success\\\"}\",0,0\r\n", id);
+            Esp_Cmd(cmd, "OK");
         }
         my_uart_receive_clean(&Usart2type);
     }
@@ -156,7 +190,7 @@ uint8_t Esp_Door_Close()
 uint8_t Esp_Face_Alarm()
 {
     uint8_t ret = 0;
-    ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"12\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.01\\,\\\"Text\\\":\\\"moshengren\\\"}}}}\",0,0\r\n", "OK");
+    ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"12\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.01\\,\\\"Text\\\":\\\"Stranger!!!\\\"}}}}\",0,0\r\n", "OK");
 //    MatchingRate暂未实现
     return ret;
 }

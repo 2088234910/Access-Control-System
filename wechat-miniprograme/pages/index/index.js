@@ -94,7 +94,7 @@ Page({
         'Authorization': auth_info
       },
       success: (res) => {
-        console.log("OneNET数据请求成功，返回数据：", res.data);
+        //console.log("OneNET数据请求成功，返回数据：", res.data);
         if (res.data.code === 0) {
           this.setData({
             onenet_data: res.data, // 获取的数据放入onenet_data中
@@ -141,7 +141,7 @@ Page({
       },
 
       success: (res) => {
-        console.log("OneNET事件请求成功，返回数据：", res.data);
+        //console.log("OneNET事件请求成功，返回数据：", res.data);
         if (res.data.code === 0) {
           this.setData({
             device_event: res.data,
@@ -242,7 +242,7 @@ Page({
           }
         },
         success: (res) => {
-          console.log('OneNET属性设置请求成功，返回数据', res.data); // 打印接收到的数据
+          //console.log('OneNET属性设置请求成功，返回数据', res.data); // 打印接收到的数据
   
           // 隐藏加载提示框
           wx.hideLoading();
@@ -255,27 +255,30 @@ Page({
               icon: 'success', // 图标类型，使用成功图标
               duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
             });
+            this.setData({
+              [param_name]: is_checked
+            });
           } 
-          // else {
-          //   // 显示失败提示框
-          //   wx.showToast({
-          //     title: res.data.msg || '操作失败', // 提示的文字内容，使用服务器返回的msg信息
-          //     icon: 'none', // 不显示图标
-          //     duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
-          //   });
-          // }
+          else {
+            // 显示失败提示框
+            wx.showToast({
+              title: res.data.msg || '操作失败', // 提示的文字内容，使用服务器返回的msg信息
+              icon: 'none', // 不显示图标
+              duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
+            });
+          }
         },
-        // fail: (err) => {
-        //   console.log('OneNET属性设置请求失败，返回数据：', err); // 打印错误信息
-        //   // 隐藏加载提示框
-        //   wx.hideLoading();
-        //   // 显示失败提示框
-        //   wx.showToast({
-        //     title: '操作失败', // 提示的文字内容
-        //     icon: 'none', // 不显示图标
-        //     duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
-        //   });
-        // }
+        fail: (err) => {
+          console.log('OneNET属性设置请求失败，返回数据：', err); // 打印错误信息
+          // 隐藏加载提示框
+          wx.hideLoading();
+          // 显示失败提示框
+          wx.showToast({
+            title: '操作失败', // 提示的文字内容
+            icon: 'none', // 不显示图标
+            duration: 1500 // 提示框自动隐藏的时间，单位是毫秒
+          });
+        }
       });
     } else {
       console.log("设备离线");
