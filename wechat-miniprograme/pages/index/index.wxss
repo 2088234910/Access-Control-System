@@ -9,6 +9,7 @@
   border-radius: 36rpx;
   padding: 32rpx 64rpx;
 }
+
 .header-container .header-1{
   display: flex;
   justify-content: space-between;
@@ -25,8 +26,7 @@
 }
 
 /* 数据项通用样式 */
-.data-container,
-.light-control-container {
+.data-container {
   margin-top: 36rpx;
   display: grid;
   justify-content: center;
@@ -54,10 +54,10 @@
 
 .data-item .data-picture {
   position: absolute;
-  height: 96rpx;
-  width: 96rpx;
+  height: 108rpx;
+  width: 108rpx;
   left: 16rpx;
-  top: 16rpx;
+  top: 36rpx;
 }
 
 .data-item .data-title {
@@ -71,12 +71,20 @@
   color: #7f7f7f;
 }
 
-/* 特定数据项样式 */
-.light-control-container {
-  grid-template-columns: repeat(auto-fill, 635rpx);
+
+.message-container {
+  margin-top: 36rpx;
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(auto-fill, 600rpx);
+  grid-gap: 36rpx;
 }
 
-.light-control-container .data-item .data-text {
-  width: 75%;
-  text-align: center;
+.message-item {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+ 
+.message-item text {
+  display: block;
 }

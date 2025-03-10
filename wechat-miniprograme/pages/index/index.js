@@ -10,7 +10,9 @@ Page({
   data: {
     onenet_data: [], // 用来存储设备属性值的数组
     device_status: [], // 用来存储设备状态信息的数组
+    device_event: [], // 用来存储设备事件信息的数组
     door_flag: false, // 门状态
+    messageList: [],
   },
 
   /**
@@ -43,9 +45,11 @@ Page({
       const { start_time, end_time } = this.get_timestamps();
       this.config.start_time = start_time;
       this.config.end_time = end_time;
-      this.onenet_fetch_device_status(); // 定期获取设备状态
-      this.onenet_fetch_data(); // 定期获取设备数据
+      this.onenet_fetch_device_status();  // 定期获取设备状态
+      this.onenet_fetch_data();   // 定期获取设备数据
+      this.onenet_fetch_event();  // 定期获取设备事件
     }, 3000); // 推荐每3000毫秒更新一次，根据实际数据刷新情况调整
+
   },
 
   /**
@@ -61,6 +65,18 @@ Page({
       start_time: one_week_ago,
       end_time: now
     };
+  },
+
+// 转换时间戳为日期格式
+  formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   },
 
   /**
@@ -82,7 +98,7 @@ Page({
         if (res.data.code === 0) {
           this.setData({
             onenet_data: res.data, // 获取的数据放入onenet_data中
-            door_checked: res.data.data[0].value === 'true' ? true : false, // 布尔类型数据需要这样赋值
+            door_flag: res.data.data[0].value === 'true' ? true : false, // 布尔类型数据需要这样赋值
           });
         } else {
           // 请求成功但code不为0，视为错误，显示错误信息
@@ -101,6 +117,68 @@ Page({
         // 显示错误提示框
         wx.showToast({
           title: '请求失败', // 使用默认错误信息
+          icon: 'none', // 不显示图标
+          duration: 2000 // 提示框自动隐藏的时间，单位是毫秒
+        });
+      }
+    });
+  },
+
+    /**
+   * @简要：获取设备事件记录
+   * @参数：无
+   * @注意：向OneNET平台发送请求，获取设备的事件记录，并更新页面数据。
+   * @返回值：无
+   */
+  onenet_fetch_event() {
+    const { api_base_url, product_id, device_name, auth_info } = this.config;
+    const { start_time, end_time } = this.get_timestamps()
+    wx.request({
+      url: `${api_base_url}/device/event-log?product_id=${product_id}&device_name=${device_name}&start_time=${start_time}&end_time=${end_time}`,
+      method: "GET",
+      header: {
+        'Authorization': auth_info
+      },
+
+      success: (res) => {
+        console.log("OneNET事件请求成功，返回数据：", res.data);
+        if (res.data.code === 0) {
+          this.setData({
+            device_event: res.data,
+          });
+          this.data.device_event.data.list.forEach(event => {
+            try {
+                const eventValue = JSON.parse(event.value);
+                const timestamp = this.formatTimestamp(event.time);
+                const message = `人脸识别结果：${eventValue.Text}`;
+                const newMessage = {
+                  timestamp: timestamp,
+                  message: message
+                };
+                const currentMessageList = this.data.messageList;
+                currentMessageList.push(newMessage);
+                this.setData({ messageList: currentMessageList });
+            } catch (error) {
+                console.error('解析 event 失败:', error);
+            }
+          });
+        } else {
+          // 请求成功但code不为0，视为错误，显示错误信息
+          console.log("OneNET请求错误，错误信息：", res.data.msg);
+          wx.showToast({
+            title: res.data.msg || '请求出错', // 使用返回的错误信息，如果没有则显示默认信息
+            icon: 'none', // 不显示图标
+            duration: 2000 // 提示框自动隐藏的时间，单位是毫秒
+          });
+        }
+      },
+      fail: (err) => {
+        // 请求失败，则在屏幕上显示错误信息
+        console.log("设备事件记录请求失败");
+        console.error(err); // 打印错误堆栈信息
+        // 显示错误提示框
+        wx.showToast({
+          title: '设备事件记录', // 使用默认错误信息
           icon: 'none', // 不显示图标
           duration: 2000 // 提示框自动隐藏的时间，单位是毫秒
         });

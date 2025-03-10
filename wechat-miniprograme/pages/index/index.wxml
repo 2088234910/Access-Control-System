@@ -1,7 +1,7 @@
 <!-- index.wxml -->
 <view class="page-container">
 
-  <!-- 中间数据 -->
+  <!-- 卡片菜单 -->
   <view class="data-container">
     <!-- 数据项：设备状态 -->
     <view class="data-item device-status">
@@ -41,6 +41,19 @@
         </view>
       </view>
     </view>
-    
   </view>
+
+  <!-- 消息列表 -->
+  <view class="message-container">
+    <view class="container">
+      <scroll-view scroll-y="true" style="height: 100vh;">
+        <block wx:for="{{messageList}}" wx:key="index">
+          <view class="message-item">
+            <text>{{item.timestamp}} - {{item.message}}</text>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+  </view>
+
 </view>
