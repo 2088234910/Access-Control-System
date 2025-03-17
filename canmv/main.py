@@ -32,7 +32,7 @@ def FaceRegistration():
 
     img_np = pl.get_frame()
     img_res = freg.dimension_convert(img_np)
-#    print(img_res.shape)
+    print(img_res.shape)
 
     file_name = f"face_{face_index_max+1}.jpg"
     if freg.run(img_res, file_name) == 1:
@@ -69,14 +69,14 @@ def FaceRecognition():
 
 # 打铃
 def Ring():
+    uart.uart.write(bytes.fromhex('513201'))
     print("Ring running")
-    uart.uart.write(bytes.fromhex('513301'))
     audio.play_audio('/data/audio/ring.wav')
 
 # 录音
 def Record():
+    uart.uart.write(bytes.fromhex('513301'))
     print("Record running")
-    uart.uart.write(bytes.fromhex('513401'))
     audio.loop_audio(5) #采集音频并输出
 
 #----- protocol -----#

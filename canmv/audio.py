@@ -17,9 +17,9 @@ def record_audio(filename, duration):
     CHANNELS = 2           #设置声道数
     RATE = 44100           #设置采样率
 
-    p = PyAudio()
-    p.initialize(CHUNK)    #初始化PyAudio对象
-    MediaManager.init()    #vb buffer初始化
+#    p = PyAudio()
+#    p.initialize(CHUNK)    #初始化PyAudio对象
+#    MediaManager.init()    #vb buffer初始化
 
     #创建音频输入流
     stream = p.open(format=FORMAT,
@@ -42,18 +42,19 @@ def record_audio(filename, duration):
     wf.set_framerate(RATE)  #设置wav 采样率
     wf.write_frames(b''.join(frames)) #存储wav音频数据
     wf.close() #关闭wav文件
+
     stream.stop_stream() #停止采集音频数据
     stream.close()#关闭音频输入流
-    p.terminate()#释放音频对象
-    MediaManager.deinit() #释放vb buffer
+#    p.terminate()#释放音频对象
+#    MediaManager.deinit() #释放vb buffer
 
 def play_audio(filename):
     wf = wave.open(filename, 'rb')#打开wav文件
     CHUNK = int(wf.get_framerate()/25)#设置音频chunk值
 
-    p = PyAudio()
-    p.initialize(CHUNK) #初始化PyAudio对象
-    MediaManager.init()    #vb buffer初始化
+#    p = PyAudio()
+#    p.initialize(CHUNK) #初始化PyAudio对象
+#    MediaManager.init()    #vb buffer初始化
 
     #创建音频输出流，设置的音频参数均为wave中获取到的参数
     stream = p.open(format=p.get_format_from_width(wf.get_sampwidth()),
@@ -70,10 +71,11 @@ def play_audio(filename):
             break
     stream.stop_stream() #停止音频输出流
     stream.close()#关闭音频输出流
-    p.terminate()#释放音频对象
+#    p.terminate()#释放音频对象
     wf.close()#关闭wav文件
 
-    MediaManager.deinit() #释放vb buffer
+#    MediaManager.deinit() #释放vb buffer
+
 
 def loop_audio(duration):
     CHUNK = int(44100/25)#设置音频chunck
@@ -81,9 +83,9 @@ def loop_audio(duration):
     CHANNELS = 2 #设置音频声道数
     RATE = 44100 #设置音频采样率
 
-    p = PyAudio()
-    p.initialize(CHUNK)#初始化PyAudio对象
-    MediaManager.init()    #vb buffer初始化
+#    p = PyAudio()
+#    p.initialize(CHUNK)#初始化PyAudio对象
+#    MediaManager.init()    #vb buffer初始化
 
     #创建音频输入流
     input_stream = p.open(format=FORMAT,
@@ -103,17 +105,23 @@ def loop_audio(duration):
         output_stream.write(input_stream.read())
         if exit_check():
             break
+
     input_stream.stop_stream()#停止音频输入流
     output_stream.stop_stream()#停止音频输出流
     input_stream.close() #关闭音频输入流
     output_stream.close() #关闭音频输出流
-    p.terminate() #释放音频对象
+#    p.terminate() #释放音频对象
 
-    MediaManager.deinit() #释放vb buffer
+#    MediaManager.deinit() #释放vb buffer
 
+os.exitpoint(os.EXITPOINT_ENABLE)
+CHUNK = int(44100/25)#设置音频chunck
+p = PyAudio()
+p.initialize(CHUNK)#初始化PyAudio对象
+#MediaManager.init()    #vb buffer初始化
 if __name__ == "__main__":
-    os.exitpoint(os.EXITPOINT_ENABLE)
-    #play_audio('/data/audio/ring.wav') #播放wav文件
+    #os.exitpoint(os.EXITPOINT_ENABLE)
+    play_audio('/data/audio/ring.wav') #播放wav文件
     #record_audio('/data/audio/input.wav', 3)  #录制wav文件
     loop_audio(5) #采集音频并输出
     print("audio sample done")

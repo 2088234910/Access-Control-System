@@ -127,7 +127,7 @@ void Menu_Init(void)
     nowMenu = Creat_Menu("- 人脸识别",108,16,0,OLED_8X16,*FaceRecognition);
     nowMenu = Creat_BrotherMenu("- 人脸注册",108,16,0,OLED_8X16,*FaceRegistration);
     nowMenu = Creat_BrotherMenu("- 打铃",72,16,0,OLED_8X16,*Ring);
-    nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*No_Fun);
+    nowMenu = Creat_BrotherMenu("- 录音",72,16,0,OLED_8X16,*Record);
     nowMenu = Creat_BrotherMenu("- 模拟关门",108,16,0,OLED_8X16,*Door_close);
     nowMenu = Creat_BrotherMenu("- 设置",72,16,0,OLED_8X16,*MENU_child);
         nowMenu = Creat_ChildMenu("- A",72,16,0,OLED_8X16,*No_Fun);
