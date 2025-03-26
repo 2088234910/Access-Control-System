@@ -161,6 +161,7 @@ Page({
                 console.error('解析 event 失败:', error);
             }
           });
+          // console.log("time:", this.data.device_event.data.list[0].time-this.data.device_event.data.list[1].time);
           this.setData({ messageList: currentMessageList });
         } else {
           // 请求成功但code不为0，视为错误，显示错误信息

@@ -101,8 +101,8 @@ char Esp_Init(void)
 	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/property/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"door_flag\\\":{\\\"value\\\":false\\}}}\",0,0\r\n", "OK");
     if (ret) return 1;
     //ƒ∞…˙»À≤‚ ‘
-	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.01\\,\\\"Text\\\":\\\"Stranger!!!\\\"}}}}\",0,0\r\n", "OK");
-    if (ret) return 1;
+//	ret = Esp_Cmd("AT+MQTTPUB=0,\"$sys/YBUi5NO4ng/door/thing/event/post\",\"{\\\"id\\\":\\\"123\\\"\\,\\\"params\\\":{\\\"ret\\\":{\\\"value\\\":{\\\"MatchingRate\\\":0.01\\,\\\"Text\\\":\\\"Stranger!!!\\\"}}}}\",0,0\r\n", "OK");
+//    if (ret) return 1;
     
     my_uart_receive_clean(&Usart2type);
     

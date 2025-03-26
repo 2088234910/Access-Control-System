@@ -12,7 +12,7 @@ import face_recognition
 import ulab.numpy as np
 import image
 import gc
-#检查各文件中头文件是否有多余
+from libs.PipeLine import ScopedTiming
 
 #----- face -----#
 
@@ -35,7 +35,9 @@ def FaceRegistration():
     print(img_res.shape)
 
     file_name = f"face_{face_index_max+1}.jpg"
-    if freg.run(img_res, file_name) == 1:
+    with ScopedTiming("FaceRegistration time used",1):
+        regi_res = freg.run(img_res, file_name)
+    if regi_res == 1:
         img = pl.sensor.snapshot(chn=CAM_CHN_ID_1)
         img.save(face_save_dir+file_name)
         face_index_max += 1
@@ -49,18 +51,23 @@ def FaceRecognition():
     print("FaceRecognition running")
 
     img=pl.get_frame()
-    det_boxes,recg_res=frec.run(img)
-    frec.draw_result(pl,det_boxes,recg_res) # 绘制推理结果
-    pl.show_image()
+    with ScopedTiming("FaceRecognition time used",1):
+        det_boxes,recg_res=frec.run(img)
     if det_boxes:
         print(det_boxes,recg_res)
-        if recg_res[0] == 'stranger':
+        if recg_res[0] == 'empty':
+            uart.uart.write(bytes.fromhex('513104'))    # 数据库中无人脸
+        elif recg_res[0] == 'stranger':
             uart.uart.write(bytes.fromhex('513103'))    # 陌生人
-        if recg_res[0] != 'unknown':
+#            millis_timestamp = int(time.time() * 1000)
+#            print("当前毫秒级时间戳:", millis_timestamp)    # 打印时间戳，用于计算告警耗时
+        else:
             uart.uart.write(bytes.fromhex('513101'))    # 识别成功
-            time.sleep(2)
-            pl.osd_img.clear()
-            pl.show_image()
+        frec.draw_result(pl,det_boxes,recg_res)     # 绘制推理结果
+        pl.show_image()
+        time.sleep(2)
+        pl.osd_img.clear()
+        pl.show_image()
     else :
         uart.uart.write(bytes.fromhex('513102'))    # 未检测到人脸
     gc.collect()

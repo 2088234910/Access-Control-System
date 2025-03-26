@@ -79,6 +79,14 @@ void FaceRecognition()
             OLED_Clear();
             OLED_ShowMixStringArea(0,32,255,16,8,32,"检测到陌生人！",OLED_16X16,OLED_8X16);
             OLED_Update();
+            Esp_Face_Alarm();
+//            Esp_Face_Alarm();     重复发送陌生人告警，用于粗略计算单次MQTT发送用时
+            HAL_Delay(1500);
+            break;
+        } else if (res == 0x04) {
+            OLED_Clear();
+            OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸数据库为空！",OLED_16X16,OLED_8X16);
+            OLED_Update();
             HAL_Delay(1500);
             break;
         }

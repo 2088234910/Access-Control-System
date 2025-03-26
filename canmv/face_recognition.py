@@ -301,7 +301,7 @@ class FaceRecognition:
                     v_id = i
             if v_id == -1:
                 # 数据库中无人脸
-                return 'unknown'
+                return 'empty'
             elif v_score_max < self.face_recognition_threshold:
                 # 小于人脸识别阈值，未识别
                 return 'stranger'
