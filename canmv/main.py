@@ -41,6 +41,7 @@ def FaceRegistration():
         img = pl.sensor.snapshot(chn=CAM_CHN_ID_1)
         img.save(face_save_dir+file_name)
         face_index_max += 1
+        frec.database_init()
         uart.uart.write(bytes.fromhex('513001'))    # 注册成功
     else:
         uart.uart.write(bytes.fromhex('513002'))    # 注册失败
