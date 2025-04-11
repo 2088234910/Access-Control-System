@@ -132,10 +132,13 @@ class FaceRegistrationApp(AIBase):
 
     # 使用Umeyama算法计算仿射变换矩阵
     def image_umeyama_112(self,src):
+        # 定义源点数量和维度
         SRC_NUM = 5
         SRC_DIM = 2
+        # 初始化源点和目标点的均值
         src_mean = [0.0, 0.0]
         dst_mean = [0.0, 0.0]
+        # 计算源点和目标点的均值
         for i in range(0,SRC_NUM * 2,2):
             src_mean[0] += src[i]
             src_mean[1] += src[i + 1]
@@ -145,25 +148,32 @@ class FaceRegistrationApp(AIBase):
         src_mean[1] /= SRC_NUM
         dst_mean[0] /= SRC_NUM
         dst_mean[1] /= SRC_NUM
+        # 初始化源点和目标点的去均值点
         src_demean = [[0.0, 0.0] for _ in range(SRC_NUM)]
         dst_demean = [[0.0, 0.0] for _ in range(SRC_NUM)]
+        # 计算源点和目标点的去均值点
         for i in range(SRC_NUM):
             src_demean[i][0] = src[2 * i] - src_mean[0]
             src_demean[i][1] = src[2 * i + 1] - src_mean[1]
             dst_demean[i][0] = self.umeyama_args_112[2 * i] - dst_mean[0]
             dst_demean[i][1] = self.umeyama_args_112[2 * i + 1] - dst_mean[1]
+        # 初始化协方差矩阵
         A = [[0.0, 0.0], [0.0, 0.0]]
+        # 计算协方差矩阵
         for i in range(SRC_DIM):
             for k in range(SRC_DIM):
                 for j in range(SRC_NUM):
                     A[i][k] += dst_demean[j][i] * src_demean[j][k]
                 A[i][k] /= SRC_NUM
+        # 初始化奇异值分解矩阵
         T = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        # 奇异值分解
         U, S, V = self.svd22([A[0][0], A[0][1], A[1][0], A[1][1]])
         T[0][0] = U[0] * V[0] + U[1] * V[2]
         T[0][1] = U[0] * V[1] + U[1] * V[3]
         T[1][0] = U[2] * V[0] + U[3] * V[2]
         T[1][1] = U[2] * V[1] + U[3] * V[3]
+        # 计算缩放因子
         scale = 1.0
         src_demean_mean = [0.0, 0.0]
         src_demean_var = [0.0, 0.0]
@@ -178,12 +188,15 @@ class FaceRegistrationApp(AIBase):
         src_demean_var[0] /= SRC_NUM
         src_demean_var[1] /= SRC_NUM
         scale = 1.0 / (src_demean_var[0] + src_demean_var[1]) * (S[0] + S[1])
+        # 计算平移因子
         T[0][2] = dst_mean[0] - scale * (T[0][0] * src_mean[0] + T[0][1] * src_mean[1])
         T[1][2] = dst_mean[1] - scale * (T[1][0] * src_mean[0] + T[1][1] * src_mean[1])
+        # 计算缩放因子
         T[0][0] *= scale
         T[0][1] *= scale
         T[1][0] *= scale
         T[1][1] *= scale
+        # 返回变换矩阵
         return T
 
     # 获取affine变换矩阵

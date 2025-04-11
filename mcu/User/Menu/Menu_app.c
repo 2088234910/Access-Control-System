@@ -3,6 +3,7 @@
 #include "Menu.h"
 #include "OLED.h"
 #include "Key.h"
+#include "Led.h"
 #include "protocol.h"
 #include "Esp8266.h"
 
@@ -61,6 +62,7 @@ void FaceRecognition()
             OLED_ShowMixStringArea(0,32,255,16,8,32,"人脸识别成功",OLED_16X16,OLED_8X16);
             OLED_Update();
             Esp_Door_Open();
+            LED_on();
             HAL_Delay(1500);
             break;
         } else if (res == PFAIL) {
@@ -128,6 +130,7 @@ void Record()
 void Door_close()
 {
     Esp_Door_Close();
+    LED_off();
 }
 
 void Menu_Init(void)

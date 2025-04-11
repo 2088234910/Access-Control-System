@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../User/OLED;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../User/Key;../User/Esp8266;..\User\protocol;..\User\Menu</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../User/OLED;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../User/Esp8266;../User/protocol;../User/Menu;..\User\Misc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1680,12 +1680,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Drivers/Key</GroupName>
+          <GroupName>Drivers/Misc</GroupName>
           <Files>
             <File>
               <FileName>Key.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Key\Key.c</FilePath>
+              <FilePath>..\User\Misc\Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Misc\Led.c</FilePath>
             </File>
           </Files>
         </Group>
