@@ -36,13 +36,18 @@ def FaceRegistration():
 
     file_name = f"face_{face_index_max+1}.jpg"
     with ScopedTiming("FaceRegistration time used",1):
-        regi_res = freg.run(img_res, file_name)
+        dets,regi_res = freg.run(img_res, file_name)
     if regi_res == 1:
         img = pl.sensor.snapshot(chn=CAM_CHN_ID_1)
         img.save(face_save_dir+file_name)
         face_index_max += 1
         frec.database_init()
         uart.uart.write(bytes.fromhex('513001'))    # 注册成功
+        freg.draw_result(pl,dets)
+        pl.show_image()
+        time.sleep(2)
+        pl.osd_img.clear()
+        pl.show_image()
     else:
         uart.uart.write(bytes.fromhex('513002'))    # 注册失败
     gc.collect()
@@ -123,6 +128,4 @@ def main():
 
 if __name__=="__main__":
     main()
-
-
 

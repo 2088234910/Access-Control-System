@@ -19,7 +19,7 @@ class FaceDetApp(AIBase):   #继承自父类AIBase
         self.confidence_threshold=confidence_threshold  # 置信度阈值
         # nms较大时保留更多的重叠框，可能会导致同一个目标被多次检测到。nms较小时，严格限制重叠框，可能会导致一些目标被漏检
         self.nms_threshold=nms_threshold    # nms阈值用于控制框的重叠度。
-        self.anchors=anchors    # ？？？？？？？？？？？？？？？？？
+        self.anchors=anchors
         # ALIGN_UP为对齐函数，将数值向上对齐到指定的倍数
         self.rgb888p_size=[ALIGN_UP(rgb888p_size[0],16),rgb888p_size[1]]    # sensor给到AI的图像分辨率，宽16字节对齐
         self.display_size=[ALIGN_UP(display_size[0],16),display_size[1]]    # 视频输出分辨率，宽16字节对齐
@@ -191,7 +191,7 @@ class FaceRegistrationApp(AIBase):
         # 计算平移因子
         T[0][2] = dst_mean[0] - scale * (T[0][0] * src_mean[0] + T[0][1] * src_mean[1])
         T[1][2] = dst_mean[1] - scale * (T[1][0] * src_mean[0] + T[1][1] * src_mean[1])
-        # 计算缩放因子
+        # 乘上缩放因子
         T[0][0] *= scale
         T[0][1] *= scale
         T[1][0] *= scale
@@ -237,6 +237,7 @@ class FaceRegistration:
         if det_boxes:
             if det_boxes.shape[0] == 1:
                 # 只检测到一张人脸时，则将该人脸注册到数据库
+
                 db_i_name = img_file.split('.')[0]
                 for landm in landms:
                     self.face_reg.config_preprocess(landm,input_image_size=[input_np.shape[3],input_np.shape[2]])
@@ -244,13 +245,13 @@ class FaceRegistration:
                     with open(self.database_dir+'{}.bin'.format(db_i_name), "wb") as file:
                         file.write(reg_result.tobytes())
                         print('Face registration success!')
-                        return 1
+                        return landms,1
             else:
                 print('Only one person in a picture when you sign up')
-                return -1
+                return landms,-1
         else:
             print('No person detected')
-            return -1
+            return landms,-1
 
     # 将Image转换为rgb888格式
     def image2rgb888array(self,img):   #4维
@@ -270,6 +271,24 @@ class FaceRegistration:
         img_res = img.copy()
         img_return = img_res.reshape((1,img.shape[0],img.shape[1],img.shape[2]))
         return  img_return
+
+    # 绘制识别结果
+    def draw_result(self,pl,dets):
+        flattened = dets.flatten()  # 原始数据展平
+        x1, y1, x2, y2, x3, y3, x4, y4, x5, y5 = flattened
+        points = [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5)]
+        scaled_points = [(int(x / 2.4), int(y / 2.4)) for x, y in points]
+        x1, y1 = scaled_points[0]
+        x2, y2 = scaled_points[1]
+        x3, y3 = scaled_points[2]
+        x4, y4 = scaled_points[3]
+        x5, y5 = scaled_points[4]
+
+        pl.osd_img.draw_circle(x1, y1, 10, color = (0, 0, 255), thickness = 2, fill = False)
+        pl.osd_img.draw_circle(x2, y2, 10, color = (0, 0, 255), thickness = 2, fill = False)
+        pl.osd_img.draw_circle(x3, y3, 10, color = (0, 0, 255), thickness = 2, fill = False)
+        pl.osd_img.draw_circle(x4, y4, 10, color = (0, 0, 255), thickness = 2, fill = False)
+        pl.osd_img.draw_circle(x5, y5, 10, color = (0, 0, 255), thickness = 2, fill = False)
 
 def face_reg_init():
     face_det_kmodel_path="/data/face_model/face_detection_320.kmodel"
@@ -308,5 +327,3 @@ if __name__=="__main__":
             # 人脸注册
             freg.run(rgb888p_img_ndarry,img_file)
             gc.collect()
-
-
